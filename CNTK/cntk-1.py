@@ -1,4 +1,5 @@
 import pylab
+
 from matplotlib import gridspec
 from sklearn.datasets import make_classification
 import numpy as np
@@ -7,6 +8,8 @@ from cntk import Trainer
 from cntk.device import gpu
 from cntk.learners import sgd
 from cntk.ops import *
+import matplotlib.pyplot as plt
+plt.switch_backend('agg')
 
 np.random.seed(0)
 n = 100
