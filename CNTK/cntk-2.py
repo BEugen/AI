@@ -46,12 +46,13 @@ reader_test = MinibatchSource(CTFDeserializer('iris_test.txt',
 
 input_var = input_variable(4)
 label_var = input_variable(3)
-model = Dense(3, init=glorot_uniform(), activation=None)
+model = Sequential([Dense(16, init=glorot_uniform(), activation=sigmoid),
+                   Dense(3, init=glorot_uniform(), activation=None)])
 z = model(input_var)
 ce = cntk.cross_entropy_with_softmax(z, label_var)
 pe = cntk.classification_error(z, label_var)
 
-minibatch_size = 32
+minibatch_size = 16
 
 lr_per_minibatch = cntk.learning_rate_schedule(0.01, cntk.UnitType.minibatch)
 pp = cntk.logging.ProgressPrinter()
@@ -67,11 +68,11 @@ input_map = {
 cntk.logging.log_number_of_parameters(z)
 progress = []
 
-for x in range(100):
+for x in range(150):
     tloss = 0;
     taccuracy = 0;
     cnt = 0;
-    for y in range(1000):
+    for y in range(500):
         data = reader_train.next_minibatch(minibatch_size, input_map)
         t = trainer.train_minibatch(data)
         tloss += trainer.previous_minibatch_loss_average * trainer.previous_minibatch_sample_count
@@ -83,3 +84,11 @@ for x in range(100):
 
 progress = np.array(progress)
 print(progress[:, 0], progress[:, 2])
+
+test_size = 20
+
+data = reader_test.next_minibatch(test_size, input_map=input_map)
+metric = trainer.test_minibatch(data)
+
+print("Eval error = {}".format(metric))
+
