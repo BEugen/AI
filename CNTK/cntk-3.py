@@ -6,48 +6,63 @@ from cntk.io import *
 from cntk.layers import *
 from cntk.device import *
 import pylab
+from sklearn.preprocessing import StandardScaler
 
 import pandas as pd
 
-iris = pd.read_csv('data_so2M.csv')
-# print(iris)
-# Строим отображение типов ирисов на номер класса
-fwmap = dict(enumerate(set(iris.values[:, 4])))
-bkmap = {fwmap[k]: k for k in fwmap}
-print(fwmap, bkmap)
+so = pd.read_csv('data_so2N.csv', delimiter=';')
+sc_feat = so.copy()
+col_n = [0,1,2,3,4,5,6,7,8,9,10,11,12,13]
+features = sc_feat[col_n]
+scaler = StandardScaler().fit(features.values)
+features = scaler.transform(features.values)
+sc_feat[col_n] = features
 
 
 def conv(n):
     """
     Преобразует название класса в трехмерный вектор из нулей и единиц
     """
-    return [1 if x == n else 0 for i, x in fwmap.items()]
+    if n < 0.3:
+        return [1, 0, 0]
+    if 0.3 <= n < 0.5:
+        return [0, 1, 0]
+    if n >= 0.5:
+        return [0, 0, 1]
 
 
 def dump(seq, fname):
     with open(fname, 'w') as f:
         for x in seq:
-            f.write("|label {}|features {} {} {} {}\n".format(" ".join(map(str, conv(x[4]))), x[0], x[1], x[2], x[3]))
+            f.write(
+                "|label {}|features {} {} {} {} {} {} {} {} {} {} {} {} {} {}\n".format(" ".join(map(str, conv(x[14]))),
+                                                                                        x[0], x[1], x[2], x[3],
+                                                                                        x[4], x[5], x[6], x[7], x[8],
+                                                                                        x[9], x[10], x[11], x[12],
+                                                                                        x[13]))
 
+data = np.random.permutation(sc_feat.values)
+dump(data[0:76550], 'os_train.txt')
+dump(data[76550:], 'os_test.txt')
 
-data = np.random.permutation(iris.values)
-dump(data[0:130], 'iris_train.txt')
-dump(data[130:], 'iris_test.txt')
-
-reader_train = MinibatchSource(CTFDeserializer('iris_train.txt',
+reader_train = MinibatchSource(CTFDeserializer('os_train.txt',
                                                StreamDefs(
                                                    labels=StreamDef(field='label', shape=3),
-                                                   features=StreamDef(field='features', shape=4))))
+                                                   features=StreamDef(field='features', shape=14))))
 
-reader_test = MinibatchSource(CTFDeserializer('iris_test.txt',
+reader_test = MinibatchSource(CTFDeserializer('os_test.txt',
                                               StreamDefs(
                                                   labels=StreamDef(field='label', shape=3),
-                                                  features=StreamDef(field='features', shape=4))))
+                                                  features=StreamDef(field='features', shape=14))))
 
-input_var = input_variable(4)
+input_var = input_variable(14)
 label_var = input_variable(3)
-model = Sequential([Dense(16, init=glorot_uniform(), activation=sigmoid),
-                   Dense(3, init=glorot_uniform(), activation=None)])
+model = Sequential([Dense(392, init=glorot_uniform(), activation=None),
+                    Dense(196, init=glorot_uniform(), activation=relu),
+                    Dense(98, init=glorot_uniform(), activation=None),
+                    Dense(32, init=glorot_uniform(), activation=relu),
+                    Dense(18, init=glorot_uniform(), activation=sigmoid),
+                    Dense(3, init=glorot_uniform(), activation=None)])
 z = model(input_var)
 ce = cntk.cross_entropy_with_softmax(z, label_var)
 pe = cntk.classification_error(z, label_var)
@@ -90,6 +105,4 @@ test_size = 20
 data = reader_test.next_minibatch(test_size, input_map=input_map)
 metric = trainer.test_minibatch(data)
 model.save("iris_model.bin")
-print("Eval error = {}".format(metric*100))
-
-
+print("Eval error = {}".format(metric * 100))
