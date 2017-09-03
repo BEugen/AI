@@ -21,6 +21,7 @@ Y = Y.astype(np.int32)
 train_x, valid_x, test_x = np.split(X, [n//8, n*8//10])
 train_labels, valid_labels, test_labels = np.split(Y, [n//8, n*8//10])
 
+
 def plot_dataset(suptitle, features, labels):
     # prepare the plot
     fig, ax = pylab.subplots(1, 1)
