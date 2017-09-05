@@ -1,5 +1,5 @@
+from METHEO import htmltotable
 
-from CNTK import htmltotable
 proxies = {
     "http": "127.0.0.1:3128",
     "https": "127.0.0.1:3128",
