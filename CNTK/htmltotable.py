@@ -6,15 +6,15 @@ from bs4 import BeautifulSoup
 
 
 class HtmlTables(object):
-    def __init__(self, url):
+    def __init__(self, url, proxy):
 
-        self.url      = url
-        self.r        = requests.get(self.url)
+        self.url = url
+        self.r = requests.get(self.url, proxies=proxy)
         self.url_soup = BeautifulSoup(self.r.text, 'lxml')
 
     def read(self):
 
-        self.tables      = []
+        self.tables = []
         self.tables_html = self.url_soup.find_all("table")
 
         # Parse each table
@@ -29,8 +29,8 @@ class HtmlTables(object):
                         n_cols = len(col_tags)
 
             # Create dataframe
-            df = pd.DataFrame(index = range(0, n_rows), columns = range(0, n_cols))
-			# Create list to store rowspan values
+            df = pd.DataFrame(index=range(0, n_rows), columns=range(0, n_cols))
+            # Create list to store rowspan values
             skip_index = [0 for i in range(0, n_cols)]
             # Start by iterating over each row in this table...
             row_counter = 0
@@ -69,16 +69,19 @@ class HtmlTables(object):
                             col_counter = 0
                         else:
                             col_counter = col_counter + col_dim[col_dim_counter - 1]
+                            if col_counter >= len(skip_index):
+                                col_counter = len(skip_index) - 1
 
-                        while col_counter < len(skip_index) and skip_index[col_counter] > 0:
+                        while skip_index[col_counter] > 0:
                             col_counter += 1
 
                         # Get cell contents
-                        cell_data = col.get_text()
-
+                        cell_data = col.find('div', {'style': "display: inline;"})
                         # Insert data into cell
-                        df.iat[row_counter, col_counter] = cell_data
-
+                        if cell_data is not None:
+                            df.iat[row_counter, col_counter] = cell_data.get_text()
+                        else:
+                            df.iat[row_counter, col_counter] = col.get_text()
                         # Record column skipping index
                         if row_dim[row_dim_counter] > 1:
                             this_skip_index[col_counter] = row_dim[row_dim_counter]
@@ -89,4 +92,4 @@ class HtmlTables(object):
                 skip_index = [i - 1 if i > 0 else i for i in this_skip_index]
             # Append dataframe to list of tables
             self.tables.append(df)
-        return(self.tables)
+        return (self.tables)

@@ -10,7 +10,7 @@ from sklearn.preprocessing import StandardScaler
 
 import pandas as pd
 
-so = pd.read_csv('data_so2M.csv', delimiter=';')
+so = pd.read_csv('data_so2UG.csv', delimiter=';')
 print(so)
 sc_feat = so.copy()
 col_n = []
@@ -45,8 +45,8 @@ def dump(seq, fname):
 
 
 data = np.random.permutation(sc_feat.values)
-dump(data[0:16800], 'os_train.txt')
-dump(data[16800:], 'os_test.txt')
+dump(data[0:12329], 'os_train.txt')
+dump(data[12329:], 'os_test.txt')
 
 reader_train = MinibatchSource(CTFDeserializer('os_train.txt',
                                                StreamDefs(
@@ -108,5 +108,5 @@ test_size = 20
 data = reader_test.next_minibatch(test_size, input_map=input_map)
 metric = trainer.test_minibatch(data)
 
-model.save("iris_model.bin")
+model.save("iris_model-soug.bin")
 print("Eval error = {}".format(metric * 100))
