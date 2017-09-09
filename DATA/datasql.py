@@ -1,4 +1,5 @@
 import pyodbc
+import sqlite3 as lite
 
 
 class GetDataFromPc(object):
@@ -49,3 +50,21 @@ class GetDataFromPc(object):
                        '[DateTime] <= GetDate() AND  wwResolution = 1000 AND wwRetrievalMode = \'CYCLIC\') as RTP5'
                        'from #tmpr')
         return cursor.fetchall()
+
+
+class SqlLiteBase(object):
+    def __init__(self, base_path):
+        self.base = base_path
+
+    def writedata(self, data):
+        try:
+            con = lite.connect(self.base)
+            cur = con.cursor()
+            cur.execute('SELECT SQLITE_VERSION()')
+
+        except lite.DatabaseError as err:
+            print("Error: ", err)
+
+        finally:
+            if con:
+                con.close()
