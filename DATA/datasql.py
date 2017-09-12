@@ -1,4 +1,5 @@
 import pyodbc
+import sqlite3 as lite
 
 
 class GetDataFromPc(object):
@@ -51,3 +52,29 @@ class GetDataFromPc(object):
                         '[DateTime] <= GetDate() AND  wwResolution = 1000 AND wwRetrievalMode = \'CYCLIC\' order by '
                         '[DateTime] desc) as RTP5')
         return cursor.fetchall()
+
+
+class SqlLiteBase(object):
+    def __init__(self, base_path):
+        self.base = base_path
+
+    def writeanalizatordata(self, data):
+        try:
+            con = lite.connect(self.base)
+            cur = con.cursor()
+            cur.execute('insert into sovisu_analizatordata (an_date, '
+                                    'so_m, so_n, so_ug, so_n_date, '
+                                    'so_m_date, so_ug_date, so_m_nr, '
+                                    'so_n_nr, so_ug_nr, so_m_nr_v, '
+                                    'so_n_nr_v, o_ug_nr_v)'
+                        'VALUES (:an_date,:so_m, :so_n, :so_ug, :so_n_date, '
+                                    ':so_m_date, :so_ug_date, :so_m_nr, '
+                                    ':so_n_nr, :so_ug_nr, :so_m_nr_v, '
+                                    ':so_n_nr_v, :so_ug_nr_v)', data)
+
+        except lite.DatabaseError as err:
+            print("Error: ", err)
+
+        finally:
+            if con:
+                con.close()
