@@ -2,7 +2,7 @@ from DATA import datasql
 from METHEO import htmltotable
 import datetime
 
-sql = datasql.GetDataFromPc()
+sql = datasql.GetDataFromPc('sa', 'cproject', '172.31.185.41', 'Runtime')
 proxies = {
     "http": "127.0.0.1:3128",
     "https": "127.0.0.1:3128",
