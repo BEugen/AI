@@ -19,11 +19,12 @@ while True:
         try:
             hour = dt.hour
             table = obj.read()[8]
-            series = table.Series[1]
-            year = re.search(r'(?P<year>\d+)', '').group('year')
-            day_month = re.search(r'(?P<dmyear>\d+ \w+)', '').group('dm')
+            series = table.iloc[1]
+            year = re.search(r'(?P<year>\d+)', series[0]).group('year')
+            day_month = re.search(r'(?P<dm>\d+ \w+)', series[0]).group('dm')
             print(table)
         except Exception as exp:
+            hour = -1
             print(exp)
 
     if dt.second % 10 == 0:
