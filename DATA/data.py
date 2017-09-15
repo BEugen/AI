@@ -6,7 +6,10 @@ import time
 import locale
 import re
 
-sql = datasql.GetDataFromPc('sa', 'cproject', '172.31.185.41', 'Runtime')
+#test data format
+# k4, k5, k6, k7, k8, rtp, T, Po, U, ff10, ff3, Td, RRR, Wg
+
+insql = datasql.GetDataFromPc()
 proxies = {
     "http": "127.0.0.1:3128",
     "https": "127.0.0.1:3128",
@@ -23,8 +26,9 @@ wnd = {'Ветер, дующий с востока': 90, 'Ветер, дующи
        'Штиль, безветрие': 0, '': 0}
 
 obj = htmltotable.HtmlTables('http://rp5.ru/%D0%90%D1%80%D1%85%D0%B8%D0%B2_%D0%BF%D0%BE%D0%B3%D0%BE%D0%B4%D1%8B_%D0'
-                             '%B2_%D0%9D%D0%B8%D0%BA%D0%B5%D0%BB%D0%B5', None)
-sql = datasql.SqlLiteBase('/home/eugen/PycharmProjects/WebSOVisu/db.sqlite3')
+                             '%B2_%D0%9D%D0%B8%D0%BA%D0%B5%D0%BB%D0%B5', proxies)
+#sql = datasql.SqlLiteBase('/home/eugen/PycharmProjects/WebSOVisu/db.sqlite3')
+sql = datasql.SqlLiteBase('/home/administrator/projects/websovisu/db.sqlite3')
 hour = -1
 while True:
     dt = datetime.datetime.now()
@@ -43,14 +47,22 @@ while True:
             result = datetime.datetime.strptime(d + '-' + m + '-' + year + ' ' + h + ':00', u'%d-%b-%Y %H:%M')
             wd = dict()
             wd['wth_date'] = result
-            wd['T'] = float(re.search(r'(?P<d>\d*.\d*)', series[2]).group('d'))
-            wd['Po'] = float(re.search(r'(?P<d>\d*.\d*)', series[3]).group('d'))
-            wd['P'] = float(re.search(r'(?P<d>\d*.\d*)', series[4]).group('d'))
-            wd['U'] = float(re.search(r'(?P<d>\d*)', series[6]).group('d'))
-            wd['ff10'] = float(re.search(r'(?P<d>\d*)', series[9]).group('d'))
-            wd['ff3'] = float(re.search(r'(?P<d>\d*)', series[10]).group('d'))
-            wd['Td'] = float(re.search(r'(?P<d>\d*.\d*)', series[23]).group('d'))
-            wd['RRR'] = float(re.search(r'(?P<d>\d*.\d*)', series[24]).group('d'))
+            re_search = re.search(r'(?P<d>\d*.\d*)', series[2]).group('d')
+            wd['T'] = float(re_search) if re_search and re_search.replace('.', '').isdigit() else -999.0
+            re_search = re.search(r'(?P<d>\d*.\d*)', series[3]).group('d')
+            wd['Po'] = float(re_search) if re_search and re_search.replace('.', '').isdigit() else -999.0
+            re_search = re.search(r'(?P<d>\d*.\d*)', series[4]).group('d')
+            wd['P'] = float(re_search) if re_search and re_search.replace('.', '').isdigit() else -999.0
+            re_search = re.search(r'(?P<d>\d*)', series[6]).group('d')
+            wd['U'] = float(re_search) if re_search and re_search.replace('.', '').isdigit() else 0.0
+            re_search = re.search(r'(?P<d>\d*)', series[9]).group('d')
+            wd['ff10'] = float(re_search) if re_search and re_search.replace('.', '').isdigit() else 0.0
+            re_search = re.search(r'(?P<d>\d*)', series[10]).group('d')
+            wd['ff3'] = float(re_search) if re_search and re_search.replace('.', '').isdigit() else 0.0
+            re_search = re.search(r'(?P<d>\d*.\d*)', series[23]).group('d')
+            wd['Td'] = float(re_search) if re_search and re_search.replace('.', '').isdigit() else -999.0
+            re_search = re.search(r'(?P<d>\d*.\d*)', series[24]).group('d')
+            wd['RRR'] = float(re_search) if re_search and re_search.replace('.', '').isdigit() else 0.0
             wd['Wg'] = wnd[series[7]]
             sql.writewheterdata(wd)
         except Exception as exp:
@@ -58,6 +70,26 @@ while True:
             print(exp)
 
     if dt.second % 10 == 0:
-        data = sql.read()
+        try:
+            data_insql = insql.read()
+            ind = dict()
+            ind['an_date'] = data_insql[0][0]
+            ind['c4_q'] = data_insql[0][1]
+            ind['c5_q'] = data_insql[0][2]
+            ind['c6_q'] = data_insql[0][3]
+            ind['c7_q'] = data_insql[0][4]
+            ind['c8_q'] = data_insql[0][5]
+            ind['so2_m'] = data_insql[0][6]
+            ind['so2_n'] = data_insql[0][7]
+            ind['so2_ug'] = data_insql[0][8]
+            ind['rtp'] = int((data_insql[0][9] > 0 if data_insql[0][9] else 0) +
+                             (data_insql[0][10] > 0 if data_insql[0][10] else 0)+
+                             (data_insql[0][11] > 0 if data_insql[0][11] else 0))
+            sql.writeinsqldata(ind)
+            data_metheo = sql.getwheterdata()
+          # cntk = CNTKCassification. CntkClassification('/home/administrator/projects/CNTK/iris_model-som.bin')
+          #  cntk.evaluate(data_insql, data_metheo)
+        except Exception as exp:
+            print(exp)
 
     time.sleep(1)

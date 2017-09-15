@@ -1,5 +1,6 @@
 import pyodbc
 import sqlite3 as lite
+from datetime import datetime, timedelta
 
 
 class GetDataFromPc(object):
@@ -97,6 +98,55 @@ class SqlLiteBase(object):
                             ':ff3, :Td, :RRR, '
                             ':Wg, :wth_date)', data)
                 con.commit()
+        except lite.DatabaseError as err:
+            print("Error: ", err)
+
+        finally:
+            if con:
+                con.close()
+
+    def writeinsqldata(self, data):
+        try:
+            con = lite.connect(self.base)
+            cur = con.cursor()
+            c = cur.execute("""SELECT EXISTS (SELECT 1 
+                                             FROM sovisu_insqldata
+                                             WHERE an_date=?
+                                             LIMIT 1)""", (data['an_date'],)).fetchone()[0]
+
+            if not c:
+                cur.execute('INSERT INTO sovisu_insqldata (an_date, '
+                            'c4_q, c5_q, c6_q, c7_q, '
+                            'c8_q, so2_m, so2_n, '
+                            'so2_ug, rtp)'
+                            'VALUES (:an_date,:c4_q, :c5_q, :c6_q, :c7_q, '
+                            ':c8_q, :so2_m, :so2_n, '
+                            ':so2_ug, :rtp)', data)
+                cur.execute("""DELETE 
+                                   FROM sovisu_insqldata
+                                   WHERE an_date <=?
+                                   """, ((data['an_date'] - timedelta(hours=1)),))
+                con.commit()
+        except lite.DatabaseError as err:
+            print("Error: ", err)
+
+        finally:
+            if con:
+                con.close()
+
+    def getwheterdata(self):
+        try:
+            con = lite.connect(self.base)
+            cur = con.cursor()
+            c = cur.execute("""SELECT c4_q, c5_q, c6_q, c7_q, c8_q,
+                                      rtp, T,  Po, U, ff10, ff3, Td, RRR, Wg
+                               FROM sovisu_insqldata
+                               LEFT JOIN  sovisu_weather on sovisu_weather.wth_date = (SELECT wth_date, T, Po, U, ff10, 
+                               ff3, Td, RRR, Wg FROM sovisu_weather  WHERE  
+                                sovisu_weather.wth_date <= sovisu_insqldata.an_date order by wth_date desc LIMIT 1)
+                               WHERE wth_date <= ? order by wth_date desc LIMIT 10""", (datetime.now(),))
+
+            return c
         except lite.DatabaseError as err:
             print("Error: ", err)
 
