@@ -140,11 +140,10 @@ class SqlLiteBase(object):
             cur = con.cursor()
             c = cur.execute("""SELECT c4_q, c5_q, c6_q, c7_q, c8_q,
                                       rtp, T,  Po, U, ff10, ff3, Td, RRR, Wg
-                               FROM sovisu_insqldata
-                               LEFT JOIN  sovisu_weather on sovisu_weather.wth_date = (SELECT wth_date, T, Po, U, ff10, 
-                               ff3, Td, RRR, Wg FROM sovisu_weather  WHERE  
-                                sovisu_weather.wth_date <= sovisu_insqldata.an_date order by wth_date desc LIMIT 1)
-                               WHERE wth_date <= ? order by wth_date desc LIMIT 10""", (datetime.now(),))
+                               FROM sovisu_insqldata a
+                               CROSS JOIN  (SELECT * FROM sovisu_weather order by wth_date desc LIMIT 1) b 
+                               on b.wth_date <= a.an_date 
+                               WHERE an_date <= ? order by an_date desc LIMIT 10""", (datetime.now(),))
 
             return c
         except lite.DatabaseError as err:
