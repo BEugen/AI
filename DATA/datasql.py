@@ -145,7 +145,7 @@ class SqlLiteBase(object):
                                on b.wth_date <= a.an_date 
                                WHERE an_date <= ? order by an_date desc LIMIT 10""", (datetime.now(),))
 
-            return c
+            return c.fetchall()
         except lite.DatabaseError as err:
             print("Error: ", err)
 
