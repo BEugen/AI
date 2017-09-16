@@ -143,7 +143,7 @@ class SqlLiteBase(object):
                                FROM sovisu_insqldata a
                                CROSS JOIN  (SELECT * FROM sovisu_weather order by wth_date desc LIMIT 1) b 
                                on b.wth_date <= a.an_date 
-                               WHERE an_date <= ? order by an_date desc LIMIT 10""", (datetime.now(),))
+                               WHERE an_date <= ? order by an_date desc LIMIT 50""", (datetime.now(),))
 
             return c.fetchall()
         except lite.DatabaseError as err:

@@ -108,5 +108,5 @@ test_size = 20
 data = reader_test.next_minibatch(test_size, input_map=input_map)
 metric = trainer.test_minibatch(data)
 
-model.save("iris_model-soug.bin")
+#model.save("iris_model-soug.bin")
 print("Eval error = {}".format(metric * 100))

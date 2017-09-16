@@ -9,7 +9,7 @@ import re
 #test data format
 # k4, k5, k6, k7, k8, rtp, T, Po, U, ff10, ff3, Td, RRR, Wg
 
-insql = datasql.GetDataFromPc('sa', 'tst', '172.31.185.43', 'Runtime')
+insql = datasql.GetDataFromPc()
 proxies = {
     "http": "127.0.0.1:3128",
     "https": "127.0.0.1:3128",
@@ -26,9 +26,9 @@ wnd = {'Ветер, дующий с востока': 90, 'Ветер, дующи
        'Штиль, безветрие': 0, '': 0}
 
 obj = htmltotable.HtmlTables('http://rp5.ru/%D0%90%D1%80%D1%85%D0%B8%D0%B2_%D0%BF%D0%BE%D0%B3%D0%BE%D0%B4%D1%8B_%D0'
-                             '%B2_%D0%9D%D0%B8%D0%BA%D0%B5%D0%BB%D0%B5', None)
-sql = datasql.SqlLiteBase('/home/eugen/PycharmProjects/WebSOVisu/db.sqlite3')
-#sql = datasql.SqlLiteBase('/home/administrator/projects/websovisu/db.sqlite3')
+                             '%B2_%D0%9D%D0%B8%D0%BA%D0%B5%D0%BB%D0%B5', proxies)
+#sql = datasql.SqlLiteBase('/home/eugen/PycharmProjects/WebSOVisu/db.sqlite3')
+sql = datasql.SqlLiteBase('/home/administrator/projects/websovisu/db.sqlite3')
 hour = -1
 while True:
     dt = datetime.datetime.now()
@@ -71,24 +71,24 @@ while True:
 
     if dt.second % 10 == 0:
         try:
- #           data_insql = insql.read()
-  #          ind = dict()
- #           ind['an_date'] = data_insql[0][0]
- #           ind['c4_q'] = data_insql[0][1]
- #           ind['c5_q'] = data_insql[0][2]
-  #          ind['c6_q'] = data_insql[0][3]
-  #          ind['c7_q'] = data_insql[0][4]
-  #          ind['c8_q'] = data_insql[0][5]
-  #          ind['so2_m'] = data_insql[0][6]
-  #          ind['so2_n'] = data_insql[0][7]
-  #          ind['so2_ug'] = data_insql[0][8]
-  #          ind['rtp'] = int((data_insql[0][9] > 0 if data_insql[0][9] else 0) +
-  #                           (data_insql[0][10] > 0 if data_insql[0][10] else 0)+
-  #                           (data_insql[0][11] > 0 if data_insql[0][11] else 0))
-  #          sql.writeinsqldata(ind)
-            data_metheo = sql.getwheterdata()
-            #cntk = CNTKCassification. CntkClassification('/home/administrator/projects/CNTK/iris_model-som.bin')
-            #cntk.evaluate(data_insql, data_metheo)
+            data_insql = insql.read()
+            ind = dict()
+            ind['an_date'] = data_insql[0][0]
+            ind['c4_q'] = data_insql[0][1]
+            ind['c5_q'] = data_insql[0][2]
+            ind['c6_q'] = data_insql[0][3]
+            ind['c7_q'] = data_insql[0][4]
+            ind['c8_q'] = data_insql[0][5]
+            ind['so2_m'] = data_insql[0][6]
+            ind['so2_n'] = data_insql[0][7]
+            ind['so2_ug'] = data_insql[0][8]
+            ind['rtp'] = int((data_insql[0][9] > 0 if data_insql[0][9] else 0) +
+                             (data_insql[0][10] > 0 if data_insql[0][10] else 0)+
+                             (data_insql[0][11] > 0 if data_insql[0][11] else 0))
+            sql.writeinsqldata(ind)
+            data_full = sql.getwheterdata()
+            cntk = CNTKCassification. CntkClassification('/home/administrator/projects/CNTK/iris_model-som.bin')
+            cntk.evaluate(data_full)
         except Exception as exp:
             print(exp)
 
