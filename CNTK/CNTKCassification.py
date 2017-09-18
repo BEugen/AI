@@ -20,6 +20,8 @@ class CntkClassification(object):
         ed = np.array(data)
         scaler = StandardScaler().fit(ed)
         features = scaler.transform(ed)
-        #output = z.
-        #features = MinMaxScaler().fit_transform(ed)
+        data_seq = np.stack(features)
+        output = z.eval({z.arguments[0]: [data_seq]})
+        top_class = np.argmax(output)
+        print(top_class)
         pass

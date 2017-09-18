@@ -87,7 +87,7 @@ while True:
                              (data_insql[0][11] > 0 if data_insql[0][11] else 0))
             sql.writeinsqldata(ind)
             data_full = sql.getwheterdata()
-            cntk = CNTKCassification. CntkClassification('/home/administrator/projects/CNTK/iris_model-som.bin')
+            cntk = CNTKCassification. CntkClassification('/home/administrator/projects/CNTK/iris_model-son.bin')
             cntk.evaluate(data_full)
         except Exception as exp:
             print(exp)
