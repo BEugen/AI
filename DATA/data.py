@@ -66,7 +66,6 @@ while True:
             wd['Wg'] = wnd[series[7]]
             sql.writewheterdata(wd)
         except Exception as exp:
-            hour = -1
             print(exp)
 
     if dt.second % 10 == 0:
@@ -87,7 +86,7 @@ while True:
                              (data_insql[0][11] > 0 if data_insql[0][11] else 0))
             sql.writeinsqldata(ind)
             data_full = sql.getwheterdata()
-            cntk = CNTKCassification. CntkClassification('/home/administrator/projects/CNTK/iris_model-son.bin')
+            cntk = CNTKCassification.CntkClassification('/home/administrator/projects/CNTK/model-som.dnn')
             cntk.evaluate(data_full)
         except Exception as exp:
             print(exp)

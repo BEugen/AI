@@ -19,9 +19,9 @@ class CntkClassification(object):
         z = load_model(self.model_path)
         ed = np.array(data)
         scaler = StandardScaler().fit(ed)
-        features = scaler.transform(ed)
-        data_seq = np.stack(features)
-        output = z.eval({z.arguments[0]: [data_seq]})
+        features = np.ascontiguousarray(scaler.transform(ed)[0], dtype=np.float32)
+        output = z.eval({z.arguments[0]: [features]})
+        print(output)
         top_class = np.argmax(output)
         print(top_class)
         pass
