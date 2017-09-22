@@ -72,6 +72,7 @@ while True:
         try:
             data_insql = insql.read()
             ind = dict()
+            gdata = dict()
             ind['an_date'] = data_insql[0][0]
             ind['c4_q'] = data_insql[0][1]
             ind['c5_q'] = data_insql[0][2]
@@ -87,7 +88,21 @@ while True:
             sql.writeinsqldata(ind)
             data_full = sql.getwheterdata()
             cntk = CNTKCassification.CntkClassification('/home/administrator/projects/CNTK/model-som.dnn')
-            cntk.evaluate(data_full)
+            gdata['so_m_nr'] = int(cntk.evaluate(data_full))
+            gdata['so_n_nr'] = int(cntk.reevaluate('/home/administrator/projects/CNTK/model-son.dnn', data_full))
+            gdata['so_ug_nr'] = int(cntk.reevaluate('/home/administrator/projects/CNTK/model-soug.dnn', data_full))
+            gdata['an_date'] = ind['an_date']
+            gdata['so_n_date'] = ind['an_date']
+            gdata['so_m_date'] = ind['an_date']
+            gdata['so_ug_date'] = ind['an_date']
+            gdata['so_m'] = ind['so2_m']
+            gdata['so_n'] = ind['so2_n']
+            gdata['so_ug'] = ind['so2_ug']
+            gdata['so_m_nr_v'] = 0.9
+            gdata['so_n_nr_v'] = 0.9
+            gdata['so_ug_nr_v'] = 0.9
+            sql.writeanalizatordata(gdata)
+            print(gdata)
         except Exception as exp:
             print(exp)
 

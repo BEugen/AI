@@ -67,12 +67,12 @@ class SqlLiteBase(object):
                         'so_m, so_n, so_ug, so_n_date, '
                         'so_m_date, so_ug_date, so_m_nr, '
                         'so_n_nr, so_ug_nr, so_m_nr_v, '
-                        'so_n_nr_v, o_ug_nr_v)'
+                        'so_n_nr_v, so_ug_nr_v)'
                         'VALUES (:an_date,:so_m, :so_n, :so_ug, :so_n_date, '
                         ':so_m_date, :so_ug_date, :so_m_nr, '
                         ':so_n_nr, :so_ug_nr, :so_m_nr_v, '
                         ':so_n_nr_v, :so_ug_nr_v)', data)
-
+            con.commit()
         except lite.DatabaseError as err:
             print("Error: ", err)
 

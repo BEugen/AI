@@ -9,7 +9,7 @@ import pylab
 
 import pandas as pd
 
-iris = pd.read_csv('data_so2M.csv')
+iris = pd.read_csv('data_so2N.csv')
 # print(iris)
 # Строим отображение типов ирисов на номер класса
 fwmap = dict(enumerate(set(iris.values[:, 4])))

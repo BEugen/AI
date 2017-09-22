@@ -10,7 +10,7 @@ from sklearn.preprocessing import StandardScaler
 
 import pandas as pd
 
-so = pd.read_csv('data_so2UG.csv', delimiter=';')
+so = pd.read_csv('data_so2N.csv', delimiter=';')
 print(so)
 sc_feat = so.copy()
 col_n = []
@@ -46,7 +46,7 @@ def dump(seq, fname):
                                                                                         x[13]))
 
 
-x_so2m = 12000
+x_so2m = 76000
 data = np.random.permutation(sc_feat.values)
 dump(data[0:x_so2m], 'os_train.txt')
 dump(data[x_so2m:], 'os_test.txt')
@@ -110,5 +110,5 @@ test_size = 20
 
 data = reader_test.next_minibatch(test_size, input_map=input_map)
 metric = trainer.test_minibatch(data)
-z.save("model-soug.dnn")
+z.save("model-son.dnn")
 print("Eval error = {}".format(metric * 100))

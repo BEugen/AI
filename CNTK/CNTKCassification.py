@@ -21,7 +21,9 @@ class CntkClassification(object):
         scaler = StandardScaler().fit(ed)
         features = np.ascontiguousarray(scaler.transform(ed)[0], dtype=np.float32)
         output = z.eval({z.arguments[0]: [features]})
-        print(output)
         top_class = np.argmax(output)
-        print(top_class)
-        pass
+        return top_class
+
+    def reevaluate(self, path, data):
+        self.model_path = path
+        return self.evaluate(data)
