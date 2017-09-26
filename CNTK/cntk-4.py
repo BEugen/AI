@@ -10,18 +10,17 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 import pandas as pd
 
-so = pd.read_csv('data_so2M.csv', delimiter=';')
-print(so)
+so = pd.read_csv('data_so2N.csv', delimiter=';')
 sc_feat = so.copy()
 col_n = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-sc_feat[col_n] = \
-    MinMaxScaler().fit_transform(sc_feat[col_n].as_matrix())
+sc_feat.iloc[:, :14] = \
+    MinMaxScaler().fit_transform(sc_feat.iloc[:, :14].as_matrix())
 #features = sc_feat.iloc[:, :14]
 #features = StandardScaler().fit_transform(features.values)
 #features = scaler.transform(features.values)
 #sc_feat.iloc[:, :14] = features
 
-
+print(sc_feat)
 # sc_feat[col_n] = features
 
 
@@ -48,7 +47,7 @@ def dump(seq, fname):
                                                                                         x[13]))
 
 
-x_so2 = 16877
+x_so2 = 76552
 data = np.random.permutation(sc_feat.values)
 dump(data[0:x_so2], 'os_train.txt')
 dump(data[x_so2:], 'os_test.txt')
@@ -112,5 +111,5 @@ test_size = 20
 
 data = reader_test.next_minibatch(test_size, input_map=input_map)
 metric = trainer.test_minibatch(data)
-z.save("model-som.dnn")
+z.save("model-son.dnn")
 print("Eval error = {}".format(metric * 100))
