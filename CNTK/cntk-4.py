@@ -6,18 +6,20 @@ from cntk.io import *
 from cntk.layers import *
 from cntk.device import *
 import pylab
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 import pandas as pd
 
-so = pd.read_csv('data_so2N.csv', delimiter=';')
+so = pd.read_csv('data_so2M.csv', delimiter=';')
 print(so)
 sc_feat = so.copy()
-col_n = []
-features = sc_feat.iloc[:, :14]
-scaler = StandardScaler().fit(features.values)
-features = scaler.transform(features.values)
-sc_feat.iloc[:, :14] = features
+col_n = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+sc_feat[col_n] = \
+    MinMaxScaler().fit_transform(sc_feat[col_n].as_matrix())
+#features = sc_feat.iloc[:, :14]
+#features = StandardScaler().fit_transform(features.values)
+#features = scaler.transform(features.values)
+#sc_feat.iloc[:, :14] = features
 
 
 # sc_feat[col_n] = features
@@ -46,10 +48,10 @@ def dump(seq, fname):
                                                                                         x[13]))
 
 
-x_so2m = 76000
+x_so2 = 16877
 data = np.random.permutation(sc_feat.values)
-dump(data[0:x_so2m], 'os_train.txt')
-dump(data[x_so2m:], 'os_test.txt')
+dump(data[0:x_so2], 'os_train.txt')
+dump(data[x_so2:], 'os_test.txt')
 
 reader_train = MinibatchSource(CTFDeserializer('os_train.txt',
                                                StreamDefs(
@@ -90,9 +92,9 @@ cntk.logging.log_number_of_parameters(z)
 progress = []
 
 for x in range(200):
-    tloss = 0;
-    taccuracy = 0;
-    cnt = 0;
+    tloss = 0
+    taccuracy = 0
+    cnt = 0
     for y in range(500):
         data = reader_train.next_minibatch(minibatch_size, input_map)
         t = trainer.train_minibatch(data)
@@ -110,5 +112,5 @@ test_size = 20
 
 data = reader_test.next_minibatch(test_size, input_map=input_map)
 metric = trainer.test_minibatch(data)
-z.save("model-son.dnn")
+z.save("model-som.dnn")
 print("Eval error = {}".format(metric * 100))
