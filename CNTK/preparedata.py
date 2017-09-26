@@ -11,8 +11,13 @@ sc_feat.to_csv('dt_so2n.csv', sep=';')
 sql = datasql.SqlLiteBase('/home/administrator/projects/websovisu/db.sqlite3')
 data_full = sql.getwheterdata()
 so = pd.DataFrame(data_full)
-so[col_n] = \
-    MinMaxScaler().fit_transform(so[col_n].as_matrix())
-so.to_csv('dt_so2n-p.csv', sep=';')
+scaler = MinMaxScaler().fit(so[[7]].as_matrix())
+print(scaler.data_max_)
+print(scaler.data_min_)
+scaler.data_max_ = 790.0
+scaler.data_min_ = 710.0
+so[[7]] = \
+    scaler.transform(so[[7]].as_matrix())
+print(so[[7]])
 
 
