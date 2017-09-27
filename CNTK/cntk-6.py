@@ -3,6 +3,7 @@ from cntk import Trainer
 from cntk.learners import sgd
 from cntk.ops import *
 from cntk.io import *
+from cntk.initializer import *
 from cntk.layers import *
 from cntk.device import *
 import pylab
@@ -63,19 +64,23 @@ reader_test = MinibatchSource(CTFDeserializer('os_test.txt',
 
 input_var = input_variable(14)
 label_var = input_variable(3)
-model = Sequential([Dense(392, init=glorot_uniform(), activation=None),
-                    Dense(196, init=glorot_uniform(), activation=relu),
-                    Dense(49, init=glorot_uniform(), activation=sigmoid),
-                    Dense(36, init=glorot_uniform(), activation=tanh),
-                    Dense(18, init=glorot_uniform(), activation=sigmoid),
-                    Dense(3, init=glorot_uniform(), activation=None)])
+#model = Sequential([Dense(84, init=he_uniform(), activation=None),
+#                    Dense(36, init=he_uniform(), activation=tanh),
+#                    Dense(18, init=he_uniform(), activation=relu),
+#                    Dense(3, init=he_uniform(), activation=None)])
+model = Sequential([Dense(392, init=he_uniform(), activation=None),
+                    Dense(196, init=he_uniform(), activation=tanh),
+                    Dense(98, init=he_uniform(), activation=relu),
+                    Dense(32, init=he_uniform(), activation=None),
+                    Dense(18, init=he_uniform(), activation=None),
+                    Dense(3, init=he_uniform(), activation=None)])
 z = model(input_var)
 ce = cntk.cross_entropy_with_softmax(z, label_var)
 pe = cntk.classification_error(z, label_var)
 
-minibatch_size = 16
+minibatch_size = 20
 
-lr_per_minibatch = cntk.learning_rate_schedule(0.005, cntk.UnitType.minibatch)
+lr_per_minibatch = cntk.learning_rate_schedule(0.01, cntk.UnitType.minibatch)
 pp = cntk.logging.ProgressPrinter()
 
 learner = cntk.adagrad(z.parameters, lr=lr_per_minibatch)
