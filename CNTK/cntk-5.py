@@ -63,10 +63,10 @@ reader_test = MinibatchSource(CTFDeserializer('os_test.txt',
 
 input_var = input_variable(14)
 label_var = input_variable(3)
-model = Sequential([Dense(512, init=glorot_uniform(), activation=tanh),
-                    Dense(256, init=glorot_uniform(), activation=tanh),
-                    Dense(128, init=glorot_uniform(), activation=None),
-                    Dense(32, init=glorot_uniform(), activation=tanh),
+model = Sequential([Dense(392, init=glorot_uniform(), activation=tanh),
+                    Dense(196, init=glorot_uniform(), activation=sigmoid),
+                    Dense(98, init=glorot_uniform(), activation=relu),
+                    Dense(49, init=glorot_uniform(), activation=tanh),
                     Dense(18, init=glorot_uniform(), activation=sigmoid),
                     Dense(3, init=glorot_uniform(), activation=None)])
 z = model(input_var)

@@ -10,7 +10,7 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 import pandas as pd
 
-so = pd.read_csv('data_so2UG.csv', delimiter=';')
+so = pd.read_csv('data_so2M.csv', delimiter=';')
 sc_feat = so.copy()
 col_n = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
 sc_feat.iloc[:, :14] = \
@@ -46,7 +46,7 @@ def dump(seq, fname):
                                                                                         x[13]))
 
 
-x_so2 = 12329
+x_so2 = 16877
 data = np.random.permutation(sc_feat.values)
 dump(data[0:x_so2], 'os_train.txt')
 dump(data[x_so2:], 'os_test.txt')
@@ -63,10 +63,10 @@ reader_test = MinibatchSource(CTFDeserializer('os_test.txt',
 
 input_var = input_variable(14)
 label_var = input_variable(3)
-model = Sequential([Dense(512, init=glorot_uniform(), activation=tanh),
-                    Dense(256, init=glorot_uniform(), activation=tanh),
-                    Dense(128, init=glorot_uniform(), activation=None),
-                    Dense(32, init=glorot_uniform(), activation=tanh),
+model = Sequential([Dense(392, init=glorot_uniform(), activation=None),
+                    Dense(196, init=glorot_uniform(), activation=relu),
+                    Dense(49, init=glorot_uniform(), activation=sigmoid),
+                    Dense(36, init=glorot_uniform(), activation=tanh),
                     Dense(18, init=glorot_uniform(), activation=sigmoid),
                     Dense(3, init=glorot_uniform(), activation=None)])
 z = model(input_var)
@@ -110,5 +110,5 @@ test_size = 20
 
 data = reader_test.next_minibatch(test_size, input_map=input_map)
 metric = trainer.test_minibatch(data)
-z.save("model-soug.dnn")
+z.save("model-som.dnn")
 print("Eval error = {}".format(metric))

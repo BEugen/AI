@@ -9,7 +9,7 @@ import re
 #test data format
 # k4, k5, k6, k7, k8, rtp, T, Po, U, ff10, ff3, Td, RRR, Wg
 
-insql = datasql.GetDataFromPc()
+insql = datasql.GetDataFromPc('sa', 'cproject', '172.31.185.41', 'Runtime')
 proxies = {
     "http": "127.0.0.1:3128",
     "https": "127.0.0.1:3128",
@@ -102,7 +102,6 @@ while True:
             gdata['so_n_nr_v'] = 0.9
             gdata['so_ug_nr_v'] = 0.9
             sql.writeanalizatordata(gdata)
-            print(gdata)
         except Exception as exp:
             print(exp)
 
