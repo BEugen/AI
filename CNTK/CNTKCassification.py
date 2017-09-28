@@ -21,7 +21,7 @@ class CntkClassification(object):
         so = pd.DataFrame(data)
         so.iloc[:, :11] = \
             MinMaxScaler().fit_transform(so.iloc[:, :11].as_matrix())
-        features = np.ascontiguousarray(so[0], dtype=np.float32)
+        features = np.ascontiguousarray(so.iloc[:1, :11], dtype=np.float32)
         output = z.eval({z.arguments[0]: [features]})
         top_class = np.argmax(output)
         return top_class
