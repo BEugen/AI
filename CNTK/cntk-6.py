@@ -68,11 +68,12 @@ label_var = input_variable(3)
 #                    Dense(36, init=he_uniform(), activation=tanh),
 #                    Dense(18, init=he_uniform(), activation=relu),
 #                    Dense(3, init=he_uniform(), activation=None)])
-model = Sequential([Dense(392, init=he_uniform(), activation=None),
+model = Sequential([Dense(14, init=he_uniform(), activation=None),
+                    Dense(98, init=he_uniform(), activation=None),
                     Dense(196, init=he_uniform(), activation=tanh),
-                    Dense(98, init=he_uniform(), activation=relu),
+                    Dense(48, init=he_uniform(), activation=relu),
                     Dense(32, init=he_uniform(), activation=None),
-                    Dense(18, init=he_uniform(), activation=None),
+                    Dense(18, init=he_uniform(), activation=tanh),
                     Dense(3, init=he_uniform(), activation=None)])
 z = model(input_var)
 ce = cntk.cross_entropy_with_softmax(z, label_var)
@@ -94,7 +95,7 @@ input_map = {
 cntk.logging.log_number_of_parameters(z)
 progress = []
 
-for x in range(500):
+for x in range(3000):
     tloss = 0
     taccuracy = 0
     cnt = 0
