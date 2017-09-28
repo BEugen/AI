@@ -7,6 +7,7 @@ from cntk.layers import *
 from cntk.device import *
 import pylab
 import numpy as np
+import pandas as pd
 
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
@@ -17,9 +18,10 @@ class CntkClassification(object):
 
     def evaluate(self, data):
         z = load_model(self.model_path)
-        ed = np.array(data)
-        scaler = StandardScaler().fit(ed)
-        features = np.ascontiguousarray(scaler.transform(ed)[0], dtype=np.float32)
+        so = pd.DataFrame(data)
+        so.iloc[:, :11] = \
+            MinMaxScaler().fit_transform(so.iloc[:, :11].as_matrix())
+        features = np.ascontiguousarray(so[0], dtype=np.float32)
         output = z.eval({z.arguments[0]: [features]})
         top_class = np.argmax(output)
         return top_class

@@ -152,3 +152,22 @@ class SqlLiteBase(object):
         finally:
             if con:
                 con.close()
+
+    def getwheterdata1(self):
+        try:
+            con = lite.connect(self.base)
+            cur = con.cursor()
+            c = cur.execute("""SELECT c4_q + c5_q + c6_q + c7_q + c8_q as cx_q,
+                                      rtp, T,  Po, U, ff10, ff3, Td, RRR, Wg
+                               FROM sovisu_insqldata a
+                               CROSS JOIN  (SELECT * FROM sovisu_weather order by wth_date desc LIMIT 1) b 
+                               on b.wth_date <= a.an_date 
+                               WHERE an_date <= ? order by an_date desc LIMIT 50""", (datetime.now(),))
+
+            return c.fetchall()
+        except lite.DatabaseError as err:
+            print("Error: ", err)
+
+        finally:
+            if con:
+                con.close()

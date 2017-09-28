@@ -61,7 +61,7 @@ label_var = input_variable(3)
 #                    Dense(36, init=he_uniform(), activation=tanh),
 #                    Dense(18, init=he_uniform(), activation=relu),
 #                    Dense(3, init=he_uniform(), activation=None)])
-model = Sequential([Dense(20, init=glorot_uniform(), activation=relu),
+model = Sequential([Dense(20, init=glorot_uniform(), activation=None),
                     Dense(60, init=glorot_uniform(), activation=tanh),
                     Dense(48, init=he_uniform(), activation=relu),
                     Dense(32, init=he_uniform(), activation=sigmoid),
@@ -86,7 +86,7 @@ input_map = {
 cntk.logging.log_number_of_parameters(z)
 progress = []
 
-for x in range(300):
+for x in range(500):
     tloss = 0
     taccuracy = 0
     cnt = 0

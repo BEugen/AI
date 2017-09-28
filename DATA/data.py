@@ -86,7 +86,7 @@ while True:
                              (data_insql[0][10] > 0 if data_insql[0][10] else 0)+
                              (data_insql[0][11] > 0 if data_insql[0][11] else 0))
             sql.writeinsqldata(ind)
-            data_full = sql.getwheterdata()
+            data_full = sql.getwheterdata1()
             cntk = CNTKCassification.CntkClassification('/home/administrator/projects/CNTK/model-som.dnn')
             gdata['so_m_nr'] = int(cntk.evaluate(data_full))
             gdata['so_n_nr'] = int(cntk.reevaluate('/home/administrator/projects/CNTK/model-son.dnn', data_full))
