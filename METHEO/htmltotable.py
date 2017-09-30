@@ -92,4 +92,7 @@ class HtmlTables(object):
                 skip_index = [i - 1 if i > 0 else i for i in this_skip_index]
             # Append dataframe to list of tables
             self.tables.append(df)
-        return (self.tables)
+        for x in self.tables:
+            if "Местное время" in x.iloc[0, 0]:
+                return x
+        return None

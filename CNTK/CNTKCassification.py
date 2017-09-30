@@ -20,8 +20,8 @@ class CntkClassification(object):
     def evaluate(self, data):
         z = load_model(self.model_path)
         so = pd.DataFrame(data)
-        so.append(fd.maxdata1())
-        so.append(fd.mindata1())
+        so = so.append(fd.maxdata1())
+        so = so.append(fd.mindata1())
         so.iloc[:, :11] = \
             MinMaxScaler().fit_transform(so.iloc[:, :11].as_matrix())
         print(so)
