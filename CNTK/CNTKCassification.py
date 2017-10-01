@@ -24,7 +24,6 @@ class CntkClassification(object):
         so = so.append(fd.mindata1())
         so.iloc[:, :11] = \
             MinMaxScaler().fit_transform(so.iloc[:, :11].as_matrix())
-        print(so)
         features = np.ascontiguousarray(so.iloc[:1, :11], dtype=np.float32)
         output = z.eval({z.arguments[0]: [features]})
         top_class = np.argmax(output)

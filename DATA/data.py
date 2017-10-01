@@ -9,7 +9,7 @@ import re
 # test data format
 # k4, k5, k6, k7, k8, rtp, T, Po, U, ff10, ff3, Td, RRR, Wg
 
-insql = datasql.GetDataFromPc()
+insql = datasql.GetDataFromPc('sa', 'cproject', '172.31.185.41', 'Runtime')
 proxies = {
     "http": "127.0.0.1:3128",
     "https": "127.0.0.1:3128",
@@ -89,10 +89,10 @@ while True:
                              (data_insql[0][11] > 0 if data_insql[0][11] else 0))
             sql.writeinsqldata(ind)
             data_full = sql.getwheterdata1()
-            cntk = CNTKCassification.CntkClassification('/home/eugen/PycharmProjects/AI/CNTK/model-som.dnn')
+            cntk = CNTKCassification.CntkClassification('/home/administrator/projects/CNTK/model-som.dnn')
             gdata['so_m_nr'] = int(cntk.evaluate(data_full))
-            gdata['so_n_nr'] = int(cntk.reevaluate('/home/eugen/PycharmProjects/AI/CNTK/model-son.dnn', data_full))
-            gdata['so_ug_nr'] = int(cntk.reevaluate('/home/eugen/PycharmProjects/AI/CNTK/model-soug.dnn', data_full))
+            gdata['so_n_nr'] = int(cntk.reevaluate('/home/administrator/projects/CNTK/model-son.dnn', data_full))
+            gdata['so_ug_nr'] = int(cntk.reevaluate('/home/administrator/projects/CNTK/model-soug.dnn', data_full))
             gdata['an_date'] = ind['an_date']
             gdata['so_n_date'] = ind['an_date']
             gdata['so_m_date'] = ind['an_date']
