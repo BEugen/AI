@@ -9,7 +9,7 @@ import re
 # test data format
 # k4, k5, k6, k7, k8, rtp, T, Po, U, ff10, ff3, Td, RRR, Wg
 
-insql = datasql.GetDataFromPc('sa', 'cproject', '172.31.185.41', 'Runtime')
+insql = datasql.GetDataFromPc()
 proxies = {
     "http": "127.0.0.1:3128",
     "https": "127.0.0.1:3128",
@@ -93,6 +93,7 @@ while True:
             gdata['so_m_nr'] = int(cntk.evaluate(data_full))
             gdata['so_n_nr'] = int(cntk.reevaluate('/home/administrator/projects/CNTK/model-son.dnn', data_full))
             gdata['so_ug_nr'] = int(cntk.reevaluate('/home/administrator/projects/CNTK/model-soug.dnn', data_full))
+            print('{M} {N} {UG}', gdata['so_m_nr'], gdata['so_n_nr'], gdata['so_ug_nr'])
             gdata['an_date'] = ind['an_date']
             gdata['so_n_date'] = ind['an_date']
             gdata['so_m_date'] = ind['an_date']
