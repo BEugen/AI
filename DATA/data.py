@@ -101,9 +101,9 @@ while True:
             gdata['so_m'] = ind['so2_m']
             gdata['so_n'] = ind['so2_n']
             gdata['so_ug'] = ind['so2_ug']
-            gdata['so_m_nr_v'] = 0.9
-            gdata['so_n_nr_v'] = 0.9
-            gdata['so_ug_nr_v'] = 0.9
+            gdata['so_m_nr_v'] = 0.7
+            gdata['so_n_nr_v'] = 0.7
+            gdata['so_ug_nr_v'] = 0.7
             sql.writeanalizatordata(gdata)
         except Exception as exp:
             print(exp)
