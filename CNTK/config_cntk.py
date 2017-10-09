@@ -1,7 +1,7 @@
 
-config_n = {'path_csv': 'data_so2N.csv', 'part': 76552, 'end': 95690, 'path_save': 'model-son.dnn'}
-config_m = {'path_csv': 'data_so2M.csv', 'part': 16878, 'end': 21096, 'path_save': 'model-som.dnn'}
-config_ug = {'path_csv': 'data_so2UG.csv', 'part': 12331, 'end': 15411, 'path_save': 'model-soug.dnn'}
+config_n = {'path_csv': 'data_so2N-2y.csv', 'part': 364856, 'end': 456069, 'path_save': 'model-son-1g.dnn'}
+config_m = {'path_csv': 'data_so2M-2y.csv', 'part': 95787, 'end': 119733, 'path_save': 'model-som-1g.dnn'}
+config_ug = {'path_csv': 'data_so2UG-2y.csv', 'part': 24353, 'end': 30441, 'path_save': 'model-soug-1g.dnn'}
 class ConfigLearning(object):
 
     def config(self, ga):

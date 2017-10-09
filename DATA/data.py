@@ -7,7 +7,7 @@ import locale
 import re
 
 # test data format
-# k4, k5, k6, k7, k8, rtp, T, Po, U, ff10, ff3, Td, RRR, Wg
+# k4, k5, k6, k7, k8, rtp, T, P, U, ff, ff10, Td, RRR, Wg
 
 insql = datasql.GetDataFromPc()
 proxies = {
