@@ -4,13 +4,16 @@ from cntk.learners import sgd
 from cntk.ops import *
 from cntk.io import *
 from cntk.layers import *
+from cntk.initializer import *
 from cntk.device import *
 import pylab
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 import pandas as pd
+from CNTK import config_cntk
 
-so = pd.read_csv('data_so2UG.csv', delimiter=';')
+conf = config_cntk.ConfigLearning().config('N')
+so = pd.read_csv(conf['path_csv'], delimiter=';')
 sc_feat = so.copy()
 col_n = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
 sc_feat.iloc[:, :14] = \
@@ -46,10 +49,10 @@ def dump(seq, fname):
                                                                                         x[13]))
 
 
-x_so2 = 12329
+sc_feat = sc_feat.iloc[:conf['end'], :]
 data = np.random.permutation(sc_feat.values)
-dump(data[0:x_so2], 'os_train.txt')
-dump(data[x_so2:], 'os_test.txt')
+dump(data[0:conf['part']], 'os_train.txt')
+dump(data[conf['part']:], 'os_test.txt')
 
 reader_train = MinibatchSource(CTFDeserializer('os_train.txt',
                                                StreamDefs(
@@ -63,12 +66,12 @@ reader_test = MinibatchSource(CTFDeserializer('os_test.txt',
 
 input_var = input_variable(14)
 label_var = input_variable(3)
-model = Sequential([Dense(392, init=glorot_uniform(), activation=tanh),
-                    Dense(196, init=glorot_uniform(), activation=sigmoid),
-                    Dense(98, init=glorot_uniform(), activation=relu),
-                    Dense(49, init=glorot_uniform(), activation=tanh),
-                    Dense(18, init=glorot_uniform(), activation=sigmoid),
-                    Dense(3, init=glorot_uniform(), activation=None)])
+model = Sequential([Dense(7000, init=glorot_uniform(), activation=sigmoid),
+                    Dense(3500, init=glorot_uniform(), activation=tanh),
+                    Dense(350, init=he_uniform(), activation=relu),
+                    Dense(45, init=he_uniform(), activation=sigmoid),
+                    Dense(9, init=he_uniform(), activation=None),
+                    Dense(3, init=he_uniform(), activation=None)])
 z = model(input_var)
 ce = cntk.cross_entropy_with_softmax(z, label_var)
 pe = cntk.classification_error(z, label_var)
@@ -110,5 +113,5 @@ test_size = 20
 
 data = reader_test.next_minibatch(test_size, input_map=input_map)
 metric = trainer.test_minibatch(data)
-z.save("model-soug.dnn")
+z.save(conf['path_save'])
 print("Eval error = {}".format(metric))

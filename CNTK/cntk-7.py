@@ -14,10 +14,34 @@ import pandas as pd
 from CNTK import config_cntk
 
 
-conf = config_cntk.ConfigLearning().config('M')
+def dump_k(seq, fname):
+    with open(fname, 'w') as f:
+        for x in seq:
+            f.write(
+                "{};{};{};{};{};{};{};{};{};{};{};{}\n".format(conv_k(x[14]),
+                                                            x[15], x[5], x[6], x[7], x[8],
+                                                            x[9], x[10], x[11], x[12],
+                                                            x[13], x[14]))
+
+
+def conv_k(n):
+    """
+    Преобразует название класса в трехмерный вектор из нулей и единиц
+    """
+    if n < 0.3:
+        return 0
+    if 0.3 <= n < 0.5:
+        return 1
+    if n >= 0.5:
+        return 2
+
+
+conf = config_cntk.ConfigLearning().config('N')
 so = pd.read_csv(conf['path_csv'], delimiter=';')
+
 sc_feat = so.copy()
 sc_feat[15] = sc_feat.iloc[:, [0, 1, 2, 3, 4]].sum(axis=1)
+dump_k(sc_feat.values, 'os_train_k.txt')
 sc_feat.iloc[:, 4:16] = \
     MinMaxScaler().fit_transform(sc_feat.iloc[:, 4:16].as_matrix())
 
@@ -65,10 +89,11 @@ label_var = input_variable(3)
 #                    Dense(36, init=he_uniform(), activation=tanh),
 #                    Dense(18, init=he_uniform(), activation=relu),
 #                    Dense(3, init=he_uniform(), activation=None)])
-model = Sequential([Dense(20, init=glorot_uniform(), activation=sigmoid),
-                    Dense(60, init=glorot_uniform(), activation=tanh),
-                    Dense(96, init=he_uniform(), activation=relu),
-                    Dense(64, init=he_uniform(), activation=sigmoid),
+model = Sequential([Dense(5000, init=glorot_uniform(), activation=sigmoid),
+                    Dense(2500, init=glorot_uniform(), activation=tanh),
+                    Dense(500, init=he_uniform(), activation=relu),
+                    Dense(50, init=he_uniform(), activation=sigmoid),
+                    Dense(9, init=he_uniform(), activation=None),
                     Dense(3, init=he_uniform(), activation=None)])
 z = model(input_var)
 ce = cntk.cross_entropy_with_softmax(z, label_var)
@@ -76,7 +101,7 @@ pe = cntk.classification_error(z, label_var)
 
 minibatch_size = 16
 
-lr_per_minibatch = cntk.learning_rate_schedule(0.005, cntk.UnitType.minibatch)
+lr_per_minibatch = cntk.learning_rate_schedule(0.01, cntk.UnitType.minibatch)
 pp = cntk.logging.ProgressPrinter()
 
 learner = cntk.adagrad(z.parameters, lr=lr_per_minibatch)
@@ -94,7 +119,7 @@ for x in range(1500):
     tloss = 0
     taccuracy = 0
     cnt = 0
-    for y in range(500):
+    for y in range(100):
         data = reader_train.next_minibatch(minibatch_size, input_map)
         t = trainer.train_minibatch(data)
         tloss += trainer.previous_minibatch_loss_average * trainer.previous_minibatch_sample_count
