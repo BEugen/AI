@@ -25,12 +25,10 @@ def dump(seq, fname):
                                                                x[13], x[14]))
 
 
-conf = config_cntk.ConfigLearning().config('M')
+conf = config_cntk.ConfigLearning().config('UG')
 so = pd.read_csv(conf['path_csv'], delimiter=';')
 so[15] = so.iloc[:, [0, 1, 2, 3, 4]].sum(axis=1)
-#dump(so.values, 'os_data.csv')
-so = pd.read_csv('os_data.csv', delimiter=';')
-sns.pairplot(so, hue='kl')
+dump(so.values, 'os_data_ug.csv')
+#so = pd.read_csv('os_data.csv', delimiter=';')
+#sns.pairplot(so, hue='kl')
 
-import matplotlib.pyplot as plt
-plt.show()
