@@ -15,12 +15,12 @@ import pandas as pd
 from CNTK import config_cntk
 
 
-conf = config_cntk.ConfigLearning().config('M')
+conf = config_cntk.ConfigLearning().config('UG')
 so = pd.read_csv(conf['path_csv'], delimiter=';')
 sc_feat = so.copy()
 sc_feat[15] = sc_feat.iloc[:, [0, 1, 2, 3, 4]].sum(axis=1)
 sc_feat.iloc[:, 4:16] = \
-    MinMaxScaler().fit_transform(sc_feat.iloc[:, 4:16].as_matrix())
+    StandardScaler().fit_transform(sc_feat.iloc[:, 4:16].as_matrix())
 
 
 def conv(n):
@@ -45,10 +45,10 @@ def dump(seq, fname):
                                                                             x[13]))
 
 
-sc_feat = sc_feat.iloc[:conf['end'], :]
+part = int(sc_feat.shape[0]*0.8)
 data = np.random.permutation(sc_feat.values)
-dump(data[0:conf['part']], 'os_train.txt')
-dump(data[conf['part']:], 'os_test.txt')
+dump(data[0:part], 'os_train.txt')
+dump(data[part:], 'os_test.txt')
 
 reader_train = MinibatchSource(CTFDeserializer('os_train.txt',
                                                StreamDefs(
