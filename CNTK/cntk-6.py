@@ -10,12 +10,15 @@ import pylab
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 import pandas as pd
+from CNTK import config_cntk
 
-so = pd.read_csv('data_so2UG.csv', delimiter=';')
+
+conf = config_cntk.ConfigLearning().config('M')
+so = pd.read_csv(conf['path_csv'], delimiter=';')
 sc_feat = so.copy()
 sc_feat[15] = sc_feat.iloc[:, [0, 1, 2, 3, 4]].sum(axis=1)
 sc_feat.iloc[:, 4:16] = \
-    MinMaxScaler().fit_transform(sc_feat.iloc[:, 4:16].as_matrix())
+    StandardScaler().fit_transform(sc_feat.iloc[:, 4:16].as_matrix())
 
 
 def conv(n):
@@ -40,10 +43,10 @@ def dump(seq, fname):
                                                                             x[13]))
 
 
-x_so2 = 12329
+part = int(sc_feat.shape[0]*0.8)
 data = np.random.permutation(sc_feat.values)
-dump(data[0:x_so2], 'os_train.txt')
-dump(data[x_so2:], 'os_test.txt')
+dump(data[0:part], 'os_train.txt')
+dump(data[part:], 'os_test.txt')
 
 reader_train = MinibatchSource(CTFDeserializer('os_train.txt',
                                                StreamDefs(
@@ -107,5 +110,5 @@ test_size = 20
 
 data = reader_test.next_minibatch(test_size, input_map=input_map)
 metric = trainer.test_minibatch(data)
-z.save("model-soug.dnn")
+z.save(conf['path_save'])
 print("Eval error = {}".format(metric))
