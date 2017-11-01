@@ -15,10 +15,10 @@ from CNTK import config_cntk
 
 conf = config_cntk.ConfigLearning().config('M')
 so = pd.read_csv(conf['path_csv'], delimiter=';')
-sc_feat = so[(so.iloc[:, 13] >=22)&(so.iloc[:, 13] <=112)]
+sc_feat = so[so.iloc[:, 13] >=112]
 sc_feat[15] = sc_feat.iloc[:, [0, 1, 2, 3, 4]].sum(axis=1)
 sc_feat.iloc[:, 4:16] = \
-    MinMaxScaler(feature_range=(0, 1)).fit_transform(sc_feat.iloc[:, 4:16].as_matrix())
+    StandardScaler().fit_transform(sc_feat.iloc[:, 4:16].as_matrix())
 
 
 def conv(n):
@@ -64,19 +64,11 @@ label_var = input_variable(3)
 #                    Dense(36, init=he_uniform(), activation=tanh),
 #                    Dense(18, init=he_uniform(), activation=relu),
 #                    Dense(3, init=he_uniform(), activation=None)])
-#model = Sequential([Dense(20, init=glorot_uniform(), activation=relu),
-#                    Dense(60, init=glorot_uniform(), activation=tanh),
-#                    Dense(48, init=he_uniform(), activation=relu),
-#                    Dense(32, init=he_uniform(), activation=sigmoid),
-#                    Dense(3, init=he_uniform(), activation=None)])
-model = Sequential([Dense(1250, init=glorot_uniform(), activation=None, name='inp_0'),
-                    Dense(2500, init=glorot_uniform(), activation=relu),
-                    Dense(1000, init=glorot_uniform(), activation=relu),
-                    Dense(150, init=glorot_uniform(), activation=tanh),
-                    Dense(75, init=glorot_uniform(), activation=relu),
-                    Dense(42, init=glorot_uniform(), activation=relu),
-                    Dense(18, init=glorot_uniform(), activation=None),
-                    Dense(3, init=glorot_uniform(), activation=None)])
+model = Sequential([Dense(20, init=glorot_uniform(), activation=relu),
+                    Dense(60, init=glorot_uniform(), activation=tanh),
+                    Dense(48, init=he_uniform(), activation=relu),
+                   Dense(32, init=he_uniform(), activation=sigmoid),
+                   Dense(3, init=he_uniform(), activation=None)])
 z = model(input_var)
 ce = cntk.cross_entropy_with_softmax(z, label_var)
 pe = cntk.classification_error(z, label_var)
