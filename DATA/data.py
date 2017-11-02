@@ -8,7 +8,7 @@ import re
 
 # test data format
 # k4, k5, k6, k7, k8, rtp, T, P, U, ff, ff10, Td, RRR, Wg
-
+#                 15   5   6  7   8  9   10    11 12    13
 insql = datasql.GetDataFromPc()
 proxies = {
     "http": "127.0.0.1:3128",
