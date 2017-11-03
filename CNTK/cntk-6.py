@@ -10,62 +10,70 @@ import pylab
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 import pandas as pd
+from CNTK import config_cntk
 
-so = pd.read_csv('data_so2UG.csv', delimiter=';')
-sc_feat = so.copy()
+
+conf = config_cntk.ConfigLearning().config('UG')
+so = pd.read_csv(conf['path_csv'], delimiter=';')
+sc_feat = so.copy()#so[(so.iloc[:, 13] >=22)&(so.iloc[:, 13] <=112)]
 sc_feat[15] = sc_feat.iloc[:, [0, 1, 2, 3, 4]].sum(axis=1)
 sc_feat.iloc[:, 4:16] = \
-    MinMaxScaler().fit_transform(sc_feat.iloc[:, 4:16].as_matrix())
+    MinMaxScaler(feature_range=(-1, 1)).fit_transform(sc_feat.iloc[:, 4:16].as_matrix())
 
 
 def conv(n):
     """
     Преобразует название класса в трехмерный вектор из нулей и единиц
     """
-    if n < 0.3:
-        return [1, 0, 0]
-    if 0.3 <= n < 0.5:
-        return [0, 1, 0]
+    if n < 0.5:
+        return [1, 0]
+#    if 0.3 <= n < 0.5:
+#        return [0, 1, 0]
     if n >= 0.5:
-        return [0, 0, 1]
+        return [0, 1]
 
 
 def dump(seq, fname):
     with open(fname, 'w') as f:
         for x in seq:
             f.write(
-                "|label {}|features {} {} {} {} {} {} {} {} {} {}\n".format(" ".join(map(str, conv(x[14]))),
-                                                                            x[15], x[5], x[6], x[7], x[8],
-                                                                            x[9], x[10], x[11], x[12],
+                "|label {}|features {} {} {} {} {} {} {}\n".format(" ".join(map(str, conv(x[14]))),
+                                                                            x[15], x[5], x[6], x[7],
+                                                                            x[9], x[12],
                                                                             x[13]))
 
 
-x_so2 = 12329
+part = int(sc_feat.shape[0]*0.8)
 data = np.random.permutation(sc_feat.values)
-dump(data[0:x_so2], 'os_train.txt')
-dump(data[x_so2:], 'os_test.txt')
+dump(data[0:part], 'os_train.txt')
+dump(data[part:], 'os_test.txt')
 
 reader_train = MinibatchSource(CTFDeserializer('os_train.txt',
                                                StreamDefs(
-                                                   labels=StreamDef(field='label', shape=3),
-                                                   features=StreamDef(field='features', shape=10))))
+                                                   labels=StreamDef(field='label', shape=2),
+                                                   features=StreamDef(field='features', shape=7))))
 
 reader_test = MinibatchSource(CTFDeserializer('os_test.txt',
                                               StreamDefs(
-                                                  labels=StreamDef(field='label', shape=3),
-                                                  features=StreamDef(field='features', shape=10))))
+                                                  labels=StreamDef(field='label', shape=2),
+                                                  features=StreamDef(field='features', shape=7))))
 
-input_var = input_variable(10)
-label_var = input_variable(3)
+input_var = input_variable(7)
+label_var = input_variable(2)
 # model = Sequential([Dense(84, init=he_uniform(), activation=None),
 #                    Dense(36, init=he_uniform(), activation=tanh),
 #                    Dense(18, init=he_uniform(), activation=relu),
 #                    Dense(3, init=he_uniform(), activation=None)])
+#model = Sequential([Dense(20, init=glorot_uniform(), activation=relu),
+#                    Dense(60, init=glorot_uniform(), activation=tanh),
+#                    Dense(48, init=he_uniform(), activation=relu),
+#                    Dense(32, init=he_uniform(), activation=sigmoid),
+#                    Dense(3, init=he_uniform(), activation=None)])
 model = Sequential([Dense(20, init=glorot_uniform(), activation=relu),
                     Dense(60, init=glorot_uniform(), activation=tanh),
                     Dense(48, init=he_uniform(), activation=relu),
-                    Dense(32, init=he_uniform(), activation=sigmoid),
-                    Dense(3, init=he_uniform(), activation=None)])
+                   Dense(32, init=he_uniform(), activation=sigmoid),
+                   Dense(2, init=he_uniform(), activation=None)])
 z = model(input_var)
 ce = cntk.cross_entropy_with_softmax(z, label_var)
 pe = cntk.classification_error(z, label_var)
@@ -90,7 +98,7 @@ for x in range(300):
     tloss = 0
     taccuracy = 0
     cnt = 0
-    for y in range(500):
+    for y in range(300):
         data = reader_train.next_minibatch(minibatch_size, input_map)
         t = trainer.train_minibatch(data)
         tloss += trainer.previous_minibatch_loss_average * trainer.previous_minibatch_sample_count
@@ -107,5 +115,5 @@ test_size = 20
 
 data = reader_test.next_minibatch(test_size, input_map=input_map)
 metric = trainer.test_minibatch(data)
-z.save("model-soug.dnn")
+z.save(conf['path_save'])
 print("Eval error = {}".format(metric))

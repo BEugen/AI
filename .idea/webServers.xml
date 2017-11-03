@@ -10,7 +10,7 @@
           <option name="port" value="22" />
         </fileTransfer>
       </webServer>
-      <webServer id="c3063da6-59cf-44f4-8671-b01cdd317be2" name="ms" url="http://datalerning-lin.southcentralus.cloudapp.azure.com">
+      <webServer id="4827d915-35b7-47d9-b39f-26a6f24c9f2e" name="azure" url="http://datalerning-lin.southcentralus.cloudapp.azure.com">
         <fileTransfer host="datalerning-lin.southcentralus.cloudapp.azure.com" port="22" accessType="SFTP">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" />

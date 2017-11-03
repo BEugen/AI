@@ -20,7 +20,7 @@ so = pd.read_csv(conf['path_csv'], delimiter=';')
 sc_feat = so.copy()
 sc_feat[15] = sc_feat.iloc[:, [0, 1, 2, 3, 4]].sum(axis=1)
 sc_feat.iloc[:, 4:16] = \
-    MinMaxScaler().fit_transform(sc_feat.iloc[:, 4:16].as_matrix())
+    StandardScaler().fit_transform(sc_feat.iloc[:, 4:16].as_matrix())
 
 
 def conv(n):
@@ -28,11 +28,11 @@ def conv(n):
     Преобразует название класса в трехмерный вектор из нулей и единиц
     """
     if n < 0.5:
-        return [1, 0]
-    #if 0.3 <= n < 0.5:
-    #    return [0, 1, 0]
+        return [1, 0, 0]
+    if 0.3 <= n < 0.5:
+        return [0, 1, 0]
     if n >= 0.5:
-        return [0, 1]
+        return [0, 0, 1]
 
 
 def dump(seq, fname):
@@ -45,23 +45,23 @@ def dump(seq, fname):
                                                                             x[13]))
 
 
-sc_feat = sc_feat.iloc[:conf['end'], :]
+part = int(sc_feat.shape[0]*0.8)
 data = np.random.permutation(sc_feat.values)
-dump(data[0:conf['part']], 'os_train.txt')
-dump(data[conf['part']:], 'os_test.txt')
+dump(data[0:part], 'os_train.txt')
+dump(data[part:], 'os_test.txt')
 
 reader_train = MinibatchSource(CTFDeserializer('os_train.txt',
                                                StreamDefs(
-                                                   labels=StreamDef(field='label', shape=2),
+                                                   labels=StreamDef(field='label', shape=3),
                                                    features=StreamDef(field='features', shape=10))))
 
 reader_test = MinibatchSource(CTFDeserializer('os_test.txt',
                                               StreamDefs(
-                                                  labels=StreamDef(field='label', shape=2),
+                                                  labels=StreamDef(field='label', shape=3),
                                                   features=StreamDef(field='features', shape=10))))
 
 input_var = input_variable(10)
-label_var = input_variable(2)
+label_var = input_variable(3)
 # model = Sequential([Dense(84, init=he_uniform(), activation=None),
 #                    Dense(36, init=he_uniform(), activation=tanh),
 #                    Dense(18, init=he_uniform(), activation=relu),
@@ -94,11 +94,11 @@ input_map = {
 cntk.logging.log_number_of_parameters(z)
 progress = []
 
-for x in range(300):
+for x in range(500):
     tloss = 0
     taccuracy = 0
     cnt = 0
-    for y in range(150):
+    for y in range(200):
         data = reader_train.next_minibatch(minibatch_size, input_map)
         t = trainer.train_minibatch(data)
         tloss += trainer.previous_minibatch_loss_average * trainer.previous_minibatch_sample_count
