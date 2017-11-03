@@ -94,7 +94,7 @@ input_map = {
 cntk.logging.log_number_of_parameters(z)
 progress = []
 
-for x in range(1000):
+for x in range(300):
     tloss = 0
     taccuracy = 0
     cnt = 0

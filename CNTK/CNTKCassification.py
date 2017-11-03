@@ -20,17 +20,21 @@ class CntkClassification(object):
         self.model_path = model_path
 
     def evaluate(self, data):
-        z = load_model(self.model_path)
         so = pd.DataFrame(data)
         so = so.append(fd.maxdata1())
         so = so.append(fd.mindata1())
-        so.iloc[:, :11] = \
-            StandardScaler().fit_transform(so.iloc[:, :11].as_matrix())
-        features = np.ascontiguousarray(so.iloc[:1, :11], dtype=np.float32)
-        output = z.eval({z.arguments[0]: [features]})
-        print(output)
-        top_class = np.argmax(output)
-        return top_class
+        z = load_model(self.model_path)
+        if so.shape[0] > 2:
+            count = so.shape[0] - 2
+            so.iloc[:, [0, 1, 2, 3, 5, 8, 9]] = \
+                MinMaxScaler(feature_range=(-1, 1)).fit_transform(so.iloc[:, [0, 1, 2, 3, 5, 8, 9]].as_matrix())
+            features = np.ascontiguousarray(so.iloc[:count, [0, 1, 2, 3, 5, 8, 9]], dtype=np.float32)
+            out = []
+            for row in features:
+                out.append(np.argmax(z.eval({z.arguments[0]: [row]})))
+            return np.rint(np.average(out))
+        else:
+            return 0
 
     def reevaluate(self, path, data):
         self.model_path = path
