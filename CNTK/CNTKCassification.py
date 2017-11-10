@@ -27,7 +27,7 @@ class CntkClassification(object):
         if so.shape[0] > 2:
             count = so.shape[0] - 2
             so.iloc[:, [0, 1, 2, 3, 5, 8, 9]] = \
-                MinMaxScaler(feature_range=(-1, 1)).fit_transform(so.iloc[:, [0, 1, 2, 3, 5, 8, 9]].as_matrix())
+                StandardScaler().fit_transform(so.iloc[:, [0, 1, 2, 3, 5, 8, 9]].as_matrix())
             features = np.ascontiguousarray(so.iloc[:count, [0, 1, 2, 3, 5, 8, 9]], dtype=np.float32)
             out = []
             for row in features:

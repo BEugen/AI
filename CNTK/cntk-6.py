@@ -18,7 +18,7 @@ so = pd.read_csv(conf['path_csv'], delimiter=';')
 sc_feat = so.copy()#so[(so.iloc[:, 13] >=22)&(so.iloc[:, 13] <=112)]
 sc_feat[15] = sc_feat.iloc[:, [0, 1, 2, 3, 4]].sum(axis=1)
 sc_feat.iloc[:, 4:16] = \
-    MinMaxScaler(feature_range=(-1, 1)).fit_transform(sc_feat.iloc[:, 4:16].as_matrix())
+    StandardScaler().fit_transform(sc_feat.iloc[:, 4:16].as_matrix())
 
 
 def conv(n):
