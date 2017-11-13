@@ -8,7 +8,7 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from DATA import fakedata
 
-so = pd.read_csv('data_so.csv', delimiter=';')
+so = pd.read_csv('data_so-1.csv', delimiter=';')
 so.iloc[:, 5] = so.iloc[:, [1, 2, 3, 4, 5]].sum(axis=1)
 so.iloc[:, 5:15] = \
    StandardScaler().fit_transform(so.iloc[:, 5:15].as_matrix())
@@ -28,4 +28,4 @@ so[19] = so.apply(lambda rw: evaluation_f(z, rw['c8_q'], rw['rtp'], rw['T'], rw[
 z = load_model('/home/administrator/projects/CNTK/model-soug-1g.dnn')
 so[20] = so.apply(lambda rw: evaluation_f(z, rw['c8_q'], rw['rtp'], rw['T'], rw['P'], rw['ff'], rw['RRR'], rw['Wg']),
                   axis=1)
-so.to_csv('data_so_all.csv', sep=';')
+so.to_csv('data_so_all-1.csv', sep=';')
