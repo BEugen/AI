@@ -2,7 +2,7 @@ from sklearn import datasets
 import pandas as pd
 import numpy as np
 
-pdf = pd.read_csv("C:\\RTMP\\22004.10.09.2015.05.10.2017.1.0.0.ru.utf8.00000000-1.csv", delimiter=';', parse_dates=True,
+pdf = pd.read_csv("C:\\RTMP\\22004.10.11.2017.13.11.2017.1.0.0.ru.utf8.00000000-1.csv", delimiter=';', parse_dates=True,
                   dayfirst=True)
 #print(pdf['U'].value_counts())
 #print(np.unique(pdf['U']))
@@ -17,5 +17,5 @@ wnd = {'Ветер. дующий с востока': 90, 'Ветер. дующи
        'Штиль. безветрие': 0, '': 0, 'nan': 0}
 
 pdf['grad'] = pdf.apply(lambda x: wnd[x[6]], axis=1)
-pdf[[0, 1, 2, 3, 5, 7, 8, 9, 22, 23, 29]].to_csv("C:\\RTMP\\metheo-nd.csv", index=False, sep=';', date_format='%d.%m.%Y %H:%M')
+pdf[[0, 1, 2, 3, 5, 7, 8, 9, 22, 23, 30]].to_csv("C:\\RTMP\\metheo-nd-nk.csv", index=False, sep=';', date_format='%d.%m.%Y %H:%M')
 print(pdf)

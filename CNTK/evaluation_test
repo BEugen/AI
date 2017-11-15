@@ -1,0 +1,31 @@
+from cntk.ops import *
+from cntk.io import *
+from cntk.layers import *
+from cntk.device import *
+import pylab
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from DATA import fakedata
+
+so = pd.read_csv('data_so-1.csv', delimiter=';')
+so.iloc[:, 5] = so.iloc[:, [1, 2, 3, 4, 5]].sum(axis=1)
+so.iloc[:, 5:15] = \
+   StandardScaler().fit_transform(so.iloc[:, 5:15].as_matrix())
+
+
+def evaluation_f(z, q, rtp, T, P, ff, RRR, Wg):
+    fetures = np.ascontiguousarray([q, rtp, T, P, ff, RRR, Wg], dtype=np.float32)
+    return int(np.argmax(z.eval({z.arguments[0]: fetures})))
+
+print(so)
+z = load_model('/home/administrator/projects/CNTK/model-son-1g.dnn')
+so[18] = so.apply(lambda rw: evaluation_f(z, rw['c8_q'], rw['rtp'], rw['T'], rw['P'], rw['ff'], rw['RRR'], rw['Wg']),
+                  axis=1)
+z = load_model('/home/administrator/projects/CNTK/model-som-1g.dnn')
+so[19] = so.apply(lambda rw: evaluation_f(z, rw['c8_q'], rw['rtp'], rw['T'], rw['P'], rw['ff'], rw['RRR'], rw['Wg']),
+                  axis=1)
+z = load_model('/home/administrator/projects/CNTK/model-soug-1g.dnn')
+so[20] = so.apply(lambda rw: evaluation_f(z, rw['c8_q'], rw['rtp'], rw['T'], rw['P'], rw['ff'], rw['RRR'], rw['Wg']),
+                  axis=1)
+so.to_csv('data_so_all-1.csv', sep=';')
