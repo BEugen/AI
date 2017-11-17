@@ -13,25 +13,24 @@ import pandas as pd
 from CNTK import config_cntk
 
 
-conf = config_cntk.ConfigLearning().config('UG')
+conf = config_cntk.ConfigLearning().config('N')
 so = pd.read_csv(conf['path_csv'], delimiter=';')
 sc_feat = so.copy()#so[(so.iloc[:, 13] >=22)&(so.iloc[:, 13] <=112)]
 sc_feat[15] = sc_feat.iloc[:, [0, 1, 2, 3, 4]].sum(axis=1)
-sc_feat.iloc[:, 4:16] = \
-    StandardScaler().fit_transform(sc_feat.iloc[:, 4:16].as_matrix())
+#sc_feat.iloc[:, 4:16] = \
+#   StandardScaler().fit_transform(sc_feat.iloc[:, 4:16].as_matrix())
 
 
 def conv(n):
     """
     Преобразует название класса в трехмерный вектор из нулей и единиц
     """
-    if n < 0.5:
+    if n < 0.35:
         return [1, 0]
-#    if 0.3 <= n < 0.5:
-#        return [0, 1, 0]
-    if n >= 0.5:
+    # if 0.35 <= n < 0.5:
+    #     return [0, 1, 0]
+    if n >= 0.35:
         return [0, 1]
-
 
 def dump(seq, fname):
     with open(fname, 'w') as f:
@@ -64,23 +63,27 @@ label_var = input_variable(2)
 #                    Dense(36, init=he_uniform(), activation=tanh),
 #                    Dense(18, init=he_uniform(), activation=relu),
 #                    Dense(3, init=he_uniform(), activation=None)])
-#model = Sequential([Dense(20, init=glorot_uniform(), activation=relu),
-#                    Dense(60, init=glorot_uniform(), activation=tanh),
-#                    Dense(48, init=he_uniform(), activation=relu),
-#                    Dense(32, init=he_uniform(), activation=sigmoid),
-#                    Dense(3, init=he_uniform(), activation=None)])
 model = Sequential([Dense(20, init=glorot_uniform(), activation=relu),
-                    Dense(60, init=glorot_uniform(), activation=tanh),
-                    Dense(48, init=he_uniform(), activation=relu),
-                   Dense(32, init=he_uniform(), activation=sigmoid),
-                   Dense(2, init=he_uniform(), activation=None)])
+                   Dense(60, init=glorot_uniform(), activation=tanh),
+                   Dense(48, init=he_uniform(), activation=relu),
+                   Dense(32, init=he_uniform(), activation=relu),
+                   Dense(2, init=he_uniform(), activation=sigmoid)])
+# model = Sequential([Dense(70, init=glorot_uniform(), activation=tanh),
+#                     Dense(140, init=glorot_uniform(), activation=sigmoid),
+#                     Dense(210, init=glorot_uniform(), activation=relu),
+#                     Dense(100, init=glorot_uniform(), activation=sigmoid),
+#                     Dense(50, init=he_uniform(), activation=relu),
+#                     Dense(25, init=he_uniform(), activation=sigmoid),
+#                     Dense(12, init=he_uniform(), activation=relu),
+#                     Dense(8, init=he_uniform(), activation=relu),
+#                     Dense(3, init=he_uniform(), activation=None)])
 z = model(input_var)
 ce = cntk.cross_entropy_with_softmax(z, label_var)
 pe = cntk.classification_error(z, label_var)
 
 minibatch_size = 16
 
-lr_per_minibatch = cntk.learning_rate_schedule(0.005, cntk.UnitType.minibatch)
+lr_per_minibatch = cntk.learning_rate_schedule(0.0003, cntk.UnitType.minibatch)
 pp = cntk.logging.ProgressPrinter()
 
 learner = cntk.adagrad(z.parameters, lr=lr_per_minibatch)
@@ -94,11 +97,11 @@ input_map = {
 cntk.logging.log_number_of_parameters(z)
 progress = []
 
-for x in range(300):
+for x in range(1500):
     tloss = 0
     taccuracy = 0
     cnt = 0
-    for y in range(300):
+    for y in range(500):
         data = reader_train.next_minibatch(minibatch_size, input_map)
         t = trainer.train_minibatch(data)
         tloss += trainer.previous_minibatch_loss_average * trainer.previous_minibatch_sample_count
