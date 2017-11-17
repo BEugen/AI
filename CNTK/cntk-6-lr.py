@@ -44,11 +44,18 @@ def dump(seq, fname):
                                                                             x[13]))
 
 
+def name_f(func):
+    if func is None:
+        return 'None'
+    else:
+        return func.__name__
+
+
 part = int(sc_feat.shape[0]*0.8)
 data = np.random.permutation(sc_feat.values)
 dump(data[0:part], 'os_train.txt')
 dump(data[part:], 'os_test.txt')
-
+file = open('CNN/f_text.txt', 'w')
 for af in range(1, 1024):
     reader_train = MinibatchSource(CTFDeserializer('os_train.txt',
                                                    StreamDefs(
@@ -70,6 +77,8 @@ for af in range(1, 1024):
                        Dense(48, init=he_uniform(), activation=ret_f(af, 2)),
                        Dense(32, init=he_uniform(), activation=ret_f(af, 3)),
                        Dense(1, init=he_uniform(), activation=ret_f(af, 4))])
+    file.write("f1 = " + name_f(ret_f(af, 0)) + ", f2 = " + name_f(ret_f(af, 1)) + ", f3 = " + name_f(ret_f(af, 3)) +
+               ", f4 = " + name_f(ret_f(af, 4)) + ", s5 = " + name_f(ret_f(af, 5)) + "\n", )
     # model = Sequential([Dense(70, init=glorot_uniform(), activation=tanh),
     #                     Dense(140, init=glorot_uniform(), activation=sigmoid),
     #                     Dense(210, init=glorot_uniform(), activation=relu),
@@ -99,7 +108,7 @@ for af in range(1, 1024):
     cntk.logging.log_number_of_parameters(z)
     progress = []
 
-    for x in range(1500):
+    for x in range(300):
         tloss = 0
         taccuracy = 0
         cnt = 0
@@ -120,5 +129,6 @@ for af in range(1, 1024):
 
     data = reader_test.next_minibatch(test_size, input_map=input_map)
     metric = trainer.test_minibatch(data)
-    z.save('CNN/dnn_n_' + str(af) + '_' + str(np.round(metric, 2)) + '_.dnn')
+    z.save('CNN/dnn_n_' + str(af) + '_' + str(np.round(metric, 4)) + '_.dnn')
     print("Eval error = {}".format(metric))
+file.close()
