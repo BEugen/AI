@@ -77,8 +77,8 @@ for af in range(1, 1024):
                        Dense(48, init=he_uniform(), activation=ret_f(af, 2)),
                        Dense(32, init=he_uniform(), activation=ret_f(af, 3)),
                        Dense(1, init=he_uniform(), activation=ret_f(af, 4))])
-    file.write("f1 = " + name_f(ret_f(af, 0)) + ", f2 = " + name_f(ret_f(af, 1)) + ", f3 = " + name_f(ret_f(af, 3)) +
-               ", f4 = " + name_f(ret_f(af, 4)) + ", s5 = " + name_f(ret_f(af, 5)) + "\n", )
+    file.write("it= " + str(af) + " f1= " + name_f(ret_f(af, 0)) + ", f2= " + name_f(ret_f(af, 1)) + ", f3= " + name_f(ret_f(af, 3)) +
+               ", f4= " + name_f(ret_f(af, 4)) + ", f5= " + name_f(ret_f(af, 5)) + "\n", )
     # model = Sequential([Dense(70, init=glorot_uniform(), activation=tanh),
     #                     Dense(140, init=glorot_uniform(), activation=sigmoid),
     #                     Dense(210, init=glorot_uniform(), activation=relu),
