@@ -49,7 +49,7 @@ data = np.random.permutation(sc_feat.values)
 dump(data[0:part], 'os_train.txt')
 dump(data[part:], 'os_test.txt')
 
-for x in range(1, 1024):
+for af in range(1, 1024):
     reader_train = MinibatchSource(CTFDeserializer('os_train.txt',
                                                    StreamDefs(
                                                        labels=StreamDef(field='label', shape=1),
@@ -65,11 +65,11 @@ for x in range(1, 1024):
     #                    Dense(36, init=he_uniform(), activation=tanh),
     #                    Dense(18, init=he_uniform(), activation=relu),
     #                    Dense(3, init=he_uniform(), activation=None)])
-    model = Sequential([Dense(20, init=glorot_uniform(), activation=ret_f(x, 0)),
-                       Dense(60, init=glorot_uniform(), activation=ret_f(x, 1)),
-                       Dense(48, init=he_uniform(), activation=ret_f(x, 2)),
-                       Dense(32, init=he_uniform(), activation=ret_f(x, 3)),
-                       Dense(1, init=he_uniform(), activation=ret_f(x, 4))])
+    model = Sequential([Dense(20, init=glorot_uniform(), activation=ret_f(af, 0)),
+                       Dense(60, init=glorot_uniform(), activation=ret_f(af, 1)),
+                       Dense(48, init=he_uniform(), activation=ret_f(af, 2)),
+                       Dense(32, init=he_uniform(), activation=ret_f(af, 3)),
+                       Dense(1, init=he_uniform(), activation=ret_f(af, 4))])
     # model = Sequential([Dense(70, init=glorot_uniform(), activation=tanh),
     #                     Dense(140, init=glorot_uniform(), activation=sigmoid),
     #                     Dense(210, init=glorot_uniform(), activation=relu),
@@ -120,5 +120,5 @@ for x in range(1, 1024):
 
     data = reader_test.next_minibatch(test_size, input_map=input_map)
     metric = trainer.test_minibatch(data)
-    z.save('CNN/dnn_n_' + str(x) + '_' + str(np.round(metric, 2)) + '_.dnn')
+    z.save('CNN/dnn_n_' + str(af) + '_' + str(np.round(metric, 2)) + '_.dnn')
     print("Eval error = {}".format(metric))
