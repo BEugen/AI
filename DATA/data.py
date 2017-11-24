@@ -10,7 +10,7 @@ import re
 # k4, k5, k6, k7, k8, rtp, T, P, U, ff, ff10, Td, RRR, Wg
 #                      5   6  7  8   9  10    11   12  13
 #                  0   1   2  3  4   5  6      7    8   9
-insql = datasql.GetDataFromPc('sa', 'cproject', '172.31.185.41', 'Runtime')
+insql = datasql.GetDataFromPc()
 proxies = {
     "http": "127.0.0.1:3128",
     "https": "127.0.0.1:3128",
@@ -23,7 +23,7 @@ wnd = {'Ветер, дующий с востока': 90, 'Ветер, дующи
        'Ветер, дующий с северо-запада': 298, 'Ветер, дующий с северо-северо-востока': 22,
        'Ветер, дующий с северо-северо-запада': 318, 'Ветер, дующий с юга': 180,
        'Ветер, дующий с юго-востока': 135, 'Ветер, дующий с юго-запада': 225,
-       'Ветер, дующий с юго-юго-востока': 112, 'Ветер, дующий с юго-юго-запада': 202,
+       'Ветер, дующий с юго-юго-востока': 158, 'Ветер, дующий с юго-юго-запада': 202,
        'Штиль, безветрие': 0, '': 0}
 
 obj = htmltotable.HtmlTables('https://rp5.ru/%D0%90%D1%80%D1%85%D0%B8%D0%B2_%D0%BF%D0%BE%D0%B3%D0%BE%D0%B4%D1%8B_%D0'
@@ -50,21 +50,21 @@ while True:
             result = datetime.datetime.strptime(d + '-' + m + '-' + year + ' ' + h + ':00', u'%d-%b-%Y %H:%M')
             wd = dict()
             wd['wth_date'] = result
-            re_search = re.search(r'(?P<d>\d*.\d*)', series[2]).group('d')
+            re_search = re.search(r'(?P<d>-\d+.\d+|\d+.\d+)', '0.0' if series[2]else series[2]).group('d')
             wd['T'] = float(re_search) if re_search and re_search.replace('.', '').isdigit() else -999.0
-            re_search = re.search(r'(?P<d>\d*.\d*)', series[3]).group('d')
+            re_search = re.search(r'(?P<d>\d+.\d+)', '0.0' if series[3] else series[3]).group('d')
             wd['Po'] = float(re_search) if re_search and re_search.replace('.', '').isdigit() else -999.0
-            re_search = re.search(r'(?P<d>\d*.\d*)', series[4]).group('d')
+            re_search = re.search(r'(?P<d>\d+.\d+)', '0.0' if series[4] else series[4]).group('d')
             wd['P'] = float(re_search) if re_search and re_search.replace('.', '').isdigit() else -999.0
-            re_search = re.search(r'(?P<d>\d*)', series[6]).group('d')
+            re_search = re.search(r'(?P<d>\d+)', '0.0' if series[6] else series[6]).group('d')
             wd['U'] = float(re_search) if re_search and re_search.replace('.', '').isdigit() else 0.0
-            re_search = re.search(r'(?P<d>\d*)', series[9]).group('d')
+            re_search = re.search(r'(?P<d>\d+)', '0.0' if series[8] else series[8]).group('d')
             wd['ff10'] = float(re_search) if re_search and re_search.replace('.', '').isdigit() else 0.0
-            re_search = re.search(r'(?P<d>\d*)', series[10]).group('d')
+            re_search = re.search(r'(?P<d>\d+)', '0.0' if series[9] else series[9]).group('d')
             wd['ff3'] = float(re_search) if re_search and re_search.replace('.', '').isdigit() else 0.0
-            re_search = re.search(r'(?P<d>\d*.\d*)', series[23]).group('d')
+            re_search = re.search(r'(?P<d>-\d+.\d+|\d+.\d+)', '0.0' if series[23] else series[23]).group('d')
             wd['Td'] = float(re_search) if re_search and re_search.replace('.', '').isdigit() else -999.0
-            re_search = re.search(r'(?P<d>\d*.\d*)', series[24]).group('d')
+            re_search = re.search(r'(?P<d>\d+.\d+)', '0.0' if series[24] else series[24]).group('d')
             wd['RRR'] = float(re_search) if re_search and re_search.replace('.', '').isdigit() else 0.0
             wd['Wg'] = wnd[series[7]]
             sql.writewheterdata(wd)
