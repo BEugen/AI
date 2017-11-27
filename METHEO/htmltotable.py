@@ -7,15 +7,14 @@ from bs4 import BeautifulSoup
 
 class HtmlTables(object):
     def __init__(self, url, proxy):
-
         self.url = url
-        self.r = requests.get(self.url, proxies=proxy)
-        self.url_soup = BeautifulSoup(self.r.text, 'lxml')
+        self.proxy = proxy
 
     def read(self):
-
+        r = requests.get(self.url, proxies=self.proxy)
+        url_soup = BeautifulSoup(r.text, 'lxml')
         self.tables = []
-        self.tables_html = self.url_soup.find_all("table")
+        self.tables_html = url_soup.find_all("table")
 
         # Parse each table
         for n in range(0, len(self.tables_html)):
