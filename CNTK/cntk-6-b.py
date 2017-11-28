@@ -45,8 +45,8 @@ def dump(seq, fname):
 
 part = int(sc_feat.shape[0]*0.8)
 data = np.random.permutation(sc_feat.values)
-dump(data[0:part], 'os_train-1.txt')
-dump(data[part:], 'os_test-1.txt')
+dump(data[0:part], 'os_train.txt')
+dump(data[part:], 'os_test.txt')
 
 reader_train = MinibatchSource(CTFDeserializer('os_train.txt',
                                                StreamDefs(
@@ -64,13 +64,9 @@ label_var = input_variable(3)
 #                    Dense(36, init=he_uniform(), activation=tanh),
 #                    Dense(18, init=he_uniform(), activation=relu),
 #                    Dense(3, init=he_uniform(), activation=None)])
-model = Sequential([Dense(70, init=glorot_uniform(), activation=relu),
-                    Dense(140, init=glorot_uniform(), activation=tanh),
-                    Dense(280, init=he_uniform(), activation=relu),
-                    Dense(210, init=he_uniform(), activation=sigmoid),
-                    Dense(175, init=he_uniform(), activation=tanh),
-                    Dense(140, init=glorot_uniform(), activation=relu),
-                    Dense(105, init=glorot_uniform(), activation=tanh),
+model = Sequential([Dense(70, init=glorot_uniform(), activation=tanh),
+                    Dense(140, init=glorot_uniform(), activation=sigmoid),
+                    Dense(105, init=glorot_uniform(), activation=sigmoid),
                     Dense(70, init=he_uniform(), activation=relu),
                     Dense(48, init=he_uniform(), activation=sigmoid),
                     Dense(32, init=he_uniform(), activation=tanh),
