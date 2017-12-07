@@ -50,31 +50,22 @@ while True:
             result = datetime.datetime.strptime(d + '-' + m + '-' + year + ' ' + h + ':00', u'%d-%b-%Y %H:%M')
             wd = dict()
             wd['wth_date'] = result
-            re_search = re.search(r'(?P<d>-\d+.\d+|\d+.\d+)',
-                                  '0.0' if not str(series[2]).strip() else series[2]).group('d')
-            wd['T'] = float(re_search) if re_search else -999.0
-            re_search = re.search(r'(?P<d>\d+.\d+)',
-                                  '0.0' if not str(series[3]).strip() else series[3]).group('d')
-            wd['Po'] = float(re_search) if re_search else -999.0
-            re_search = re.search(r'(?P<d>\d+.\d+)',
-                                  '0.0' if not str(series[4]).strip() else series[4]).group('d')
-            wd['P'] = float(re_search) if re_search else -999.0
-            re_search = re.search(r'(?P<d>\d+)',
-                                  '0.0' if not str(series[6]).strip() else series[6]).group('d')
-            wd['U'] = float(re_search) if re_search else 0.0
-            re_search = re.search(r'(?P<d>\d+)',
-                                  '0.0' if not str(series[8]).strip() else series[8]).group('d')
-            wd['ff10'] = float(re_search) if re_search else 0.0
-            re_search = re.search(r'(?P<d>\d+)',
-                                  '0.0' if not str(series[9]).strip() else series[9]).group('d')
-            wd['ff3'] = float(re_search) if re_search else 0.0
-            re_search = re.search(r'(?P<d>-\d+.\d+|\d+.\d+)',
-                                  '0.0' if not str(series[23]).strip() else series[23]).group('d')
-            wd['Td'] = float(re_search) if re_search else -999.0
-            re_search = re.search(r'(?P<d>\d+.\d+)',
-                                  '0.0' if not str(series[24]).strip() or not str(series[24]).replace('.', '').isdigit()
-                                  else series[24]).group('d')
-            wd['RRR'] = float(re_search) if re_search else 0.0
+            match = re.search(r'(?P<d>-\d+.\d+|\d+.\d+)', series[2])
+            wd['T'] = float(match.group('d')) if match else -999.0
+            match = re.search(r'(?P<d>\d+.\d+)', series[3])
+            wd['Po'] = float(match.group('d')) if match else -999.0
+            match = re.search(r'(?P<d>\d+.\d+)', series[4])
+            wd['P'] = float(match.group('d')) if match else -999.0
+            match = re.search(r'(?P<d>\d+)', series[6])
+            wd['U'] = float(match.group('d')) if match else 0.0
+            match = re.search(r'(?P<d>\d+)', series[8])
+            wd['ff10'] = float(match.group('d')) if match else 0.0
+            match = re.search(r'(?P<d>\d+)', series[9])
+            wd['ff3'] = float(match.group('d')) if match else 0.0
+            match = re.search(r'(?P<d>-\d+.\d+|\d+.\d+)', series[23])
+            wd['Td'] = float(match.group('d')) if match else -999.0
+            match = re.search(r'(?P<d>\d+.\d+)', series[24])
+            wd['RRR'] = float(match.group('d')) if match else 0.0
             wd['Wg'] = wnd[series[7]]
             sql.writewheterdata(wd)
         except Exception as exp:
