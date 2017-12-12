@@ -58,6 +58,8 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+from sklearn.metrics import roc_auc_score
 
 
 def classification(x):
@@ -72,8 +74,15 @@ def nn_model():
     model = Sequential()
     model.add(Dense(7, input_dim=7, init='normal', activation='relu'))
     model.add(Dropout(0.2))
+    model.add(Dense(14, init='normal', activation='relu'))
+    model.add(Dense(28, init='normal', activation='relu'))
+    model.add(Dense(18, init='normal', activation='sigmoid'))
+    model.add(Dense(9, init='normal', activation='sigmoid')) 
+    model.add(Dense(6, init='normal', activation='relu'))
+    model.add(Dropout(0.2))
     model.add(Dense(3, init='normal', activation='sigmoid'))
-    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    sgd = SGD(lr=0.01, momentum=0.9, decay=0.0, nesterov=False)
+    model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
     return model
 
 def main():
@@ -83,7 +92,6 @@ def main():
     so.drop(so.columns[[0, 1, 2, 3, 4, 8, 10, 11, 14]], inplace=True, axis=1)
     so.iloc[:, 0:7] = \
         StandardScaler().fit_transform(so.iloc[:, 0:7].as_matrix())
-    so.to_csv('data_so_all.csv', sep=';')
     data = np.random.permutation(so.values)
     X = data[:, 0:7].astype(float)
     Y = data[:, 7]
@@ -94,11 +102,28 @@ def main():
 
     # fit
     model = nn_model()
-    model.fit(X_train, Y_train, batch_size=7, nb_epoch=200, verbose=1)
+    history = model.fit(X_train, Y_train, batch_size=16, epochs=200, verbose=1)
 
     # predict
     predictions = model.predict_proba(X_test)
     print('Accuracy: {}'.format(roc_auc_score(y_true=Y_test, y_score=predictions)))
+
+        # График точности модели
+    plt.plot(history.history['acc'])
+    #plt.plot(history.history['val_acc'])
+    plt.title('model accuracy')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
+    # График оценки loss
+    plt.plot(history.history['loss'])
+    #plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
