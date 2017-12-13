@@ -1,5 +1,4 @@
-﻿﻿from __future__ import print_function
-from pip import models
+﻿from pip import models
 import numpy as np
 import sys
 import os
@@ -73,13 +72,13 @@ def classification(x):
 
 def nn_model():
     model = Sequential()
-    model.add(Dense(7, input_dim=7, init='normal', activation='relu'))
+    model.add(Dense(7, input_dim=7, activation='relu', kernel_initializer="normal"))
     model.add(Dropout(0.2))
-    model.add(Dense(14, init='normal', activation='relu'))
-    model.add(Dense(28, init='normal', activation='relu'))
-    model.add(Dense(18, init='normal', activation='relu'))
+    model.add(Dense(14, activation='relu', kernel_initializer="normal"))
+    model.add(Dense(28, activation='relu', kernel_initializer="normal"))
+    model.add(Dense(18, activation='relu', kernel_initializer="normal"))
     model.add(Dropout(0.2))
-    model.add(Dense(3, init='normal', activation='sigmoid'))
+    model.add(Dense(3, activation='sigmoid', kernel_initializer="normal"))
     sgd = SGD(lr=0.01, momentum=0.8, decay=0.0, nesterov=False)
     model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
     return model
@@ -100,7 +99,8 @@ def main():
     dumm_y = np_utils.to_categorical(enc_Y)
     (X_train, X_test, Y_train, Y_test) = train_test_split(X, dumm_y, test_size=.25)
 
-    tensorboard = TensorBoard(log_dir="logs/{}".format(time()))
+    tensorboard = TensorBoard(log_dir="logs/{}".format(time()), write_graph=True, write_grads=True, write_images=True,
+                              histogram_freq=0)
     # fit
     model = nn_model()
     history = model.fit(X_train, Y_train, batch_size=16, epochs=200, verbose=1, callbacks=[tensorboard])
@@ -132,7 +132,7 @@ if __name__ == "__main__":
                         help="Input directory where where training dataset and meta data are saved", 
                         required=False
                         )
-    parser.add_argument("--output_dir", type=str, 
+    parser.add_argument("--output_dir", type=str,
                         default=None, 
                         help="Input directory where where logs and models are saved", 
                         required=False
