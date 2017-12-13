@@ -53,14 +53,15 @@ from keras.layers import Conv2D
 from keras.layers import MaxPooling2D
 from keras.optimizers import SGD
 from keras.optimizers import RMSprop
+from keras.callbacks import TensorBoard
 from keras.utils import np_utils
 import pandas as pd
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-import matplotlib.pyplot as plt
 from sklearn.metrics import roc_auc_score
-
+import matplotlib.pyplot as plt
+from time import time
 
 def classification(x):
       if x < 0.3:
@@ -76,12 +77,10 @@ def nn_model():
     model.add(Dropout(0.2))
     model.add(Dense(14, init='normal', activation='relu'))
     model.add(Dense(28, init='normal', activation='relu'))
-    model.add(Dense(18, init='normal', activation='sigmoid'))
-    model.add(Dense(9, init='normal', activation='sigmoid')) 
-    model.add(Dense(6, init='normal', activation='relu'))
+    model.add(Dense(18, init='normal', activation='relu'))
     model.add(Dropout(0.2))
     model.add(Dense(3, init='normal', activation='sigmoid'))
-    sgd = SGD(lr=0.01, momentum=0.9, decay=0.0, nesterov=False)
+    sgd = SGD(lr=0.01, momentum=0.8, decay=0.0, nesterov=False)
     model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
     return model
 
@@ -92,6 +91,7 @@ def main():
     so.drop(so.columns[[0, 1, 2, 3, 4, 8, 10, 11, 14]], inplace=True, axis=1)
     so.iloc[:, 0:7] = \
         StandardScaler().fit_transform(so.iloc[:, 0:7].as_matrix())
+    so.to_csv('data_so_all.csv', sep=';')
     data = np.random.permutation(so.values)
     X = data[:, 0:7].astype(float)
     Y = data[:, 7]
@@ -100,17 +100,18 @@ def main():
     dumm_y = np_utils.to_categorical(enc_Y)
     (X_train, X_test, Y_train, Y_test) = train_test_split(X, dumm_y, test_size=.25)
 
+    tensorboard = TensorBoard(log_dir="logs/{}".format(time()))
     # fit
     model = nn_model()
-    history = model.fit(X_train, Y_train, batch_size=16, epochs=200, verbose=1)
+    history = model.fit(X_train, Y_train, batch_size=16, epochs=200, verbose=1, callbacks=[tensorboard])
 
     # predict
     predictions = model.predict_proba(X_test)
     print('Accuracy: {}'.format(roc_auc_score(y_true=Y_test, y_score=predictions)))
 
-        # График точности модели
+
+    # График точности модели
     plt.plot(history.history['acc'])
-    #plt.plot(history.history['val_acc'])
     plt.title('model accuracy')
     plt.ylabel('accuracy')
     plt.xlabel('epoch')
@@ -118,7 +119,6 @@ def main():
     plt.show()
     # График оценки loss
     plt.plot(history.history['loss'])
-    #plt.plot(history.history['val_loss'])
     plt.title('model loss')
     plt.ylabel('loss')
     plt.xlabel('epoch')
