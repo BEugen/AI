@@ -57,7 +57,7 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from time import time
 
 
@@ -85,13 +85,13 @@ def nn_model():
 
 
 def main():
-    so = pd.read_csv('data_so2n-1.csv', delimiter=';')
+    so = pd.read_csv('data_so2m-1.csv', delimiter=';')
     so['q_c'] = so.iloc[:, [0, 1, 2, 3, 4]].sum(axis=1)
     so['label'] = so.apply(lambda x: classification(x.iloc[14]), axis=1)
     so.drop(so.columns[[0, 1, 2, 3, 4, 8, 10, 11, 14]], inplace=True, axis=1)
     so.iloc[:, 0:7] = \
-        MinMaxScaler().fit_transform(so.iloc[:, 0:7].as_matrix())
-    so.to_csv('data_so_all.csv', sep=';')
+        StandardScaler().fit_transform(so.iloc[:, 0:7].as_matrix())
+    #so.to_csv('data_so_all.csv', sep=';')
     data = np.random.permutation(so.values)
     X = data[:, 0:7].astype(float)
     Y = data[:, 7]
@@ -104,27 +104,35 @@ def main():
                               histogram_freq=0)
     # fit
     model = nn_model()
-    history = model.fit(X_train, Y_train, batch_size=16, epochs=200, verbose=1, validation_data=(X_test, Y_test),
+    history = model.fit(X_train, Y_train, batch_size=16, epochs=160, verbose=1, validation_data=(X_test, Y_test),
                         shuffle=True, callbacks=[tensorboard])
 
     # predict
     predictions = model.predict_proba(X_test)
     print('Accuracy: {}'.format(roc_auc_score(y_true=Y_test, y_score=predictions)))
 
-    # График точности модели
-    plt.plot(history.history['acc'])
-    plt.title('model accuracy')
-    plt.ylabel('accuracy')
-    plt.xlabel('epoch')
-    plt.legend(['train', 'test'], loc='upper left')
-    plt.show()
-    # График оценки loss
-    plt.plot(history.history['loss'])
-    plt.title('model loss')
-    plt.ylabel('loss')
-    plt.xlabel('epoch')
-    plt.legend(['train', 'test'], loc='upper left')
-    plt.show()
+    #save model
+    model_json = model.to_json()
+    with open("model_m.json", "w") as json_file:
+        json_file.write(model_json)
+    # serialize weights to HDF5
+    model.save_weights("model_m.h5")
+
+
+    # # График точности модели
+    # plt.plot(history.history['acc'])
+    # plt.title('model accuracy')
+    # plt.ylabel('accuracy')
+    # plt.xlabel('epoch')
+    # plt.legend(['train', 'test'], loc='upper left')
+    # plt.show()
+    # # График оценки loss
+    # plt.plot(history.history['loss'])
+    # plt.title('model loss')
+    # plt.ylabel('loss')
+    # plt.xlabel('epoch')
+    # plt.legend(['train', 'test'], loc='upper left')
+    # plt.show()
 
 
 if __name__ == "__main__":
