@@ -1,4 +1,4 @@
-﻿#﻿from pip import models
+# ﻿from pip import models
 import numpy as np
 import sys
 import os
@@ -57,8 +57,9 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score
-#import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from time import time
+from keras.models import model_from_json
 
 
 def classification(x):
@@ -70,69 +71,49 @@ def classification(x):
         return 2
 
 
-def nn_model():
-    model = Sequential()
-    model.add(Dense(7, input_dim=7, activation='relu', kernel_initializer="normal"))
-    model.add(Dropout(0.2))
-    model.add(Dense(49, activation='relu', kernel_initializer="normal"))
-    model.add(Dense(28, activation='relu', kernel_initializer="normal"))
-    model.add(Dense(18, activation='relu', kernel_initializer="normal"))
-    model.add(Dropout(0.2))
-    model.add(Dense(3, activation='sigmoid', kernel_initializer="normal"))
+def model_nn(name):
+    json_file = open(name + '.json', 'r')
+    loaded_model_json = json_file.read()
+    json_file.close()
+    loaded_model = model_from_json(loaded_model_json)
+    # load weights into new model
+    loaded_model.load_weights(name + '.h5')
     sgd = SGD(lr=0.001, momentum=0.8, decay=0.0, nesterov=False)
-    model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
-    return model
+    loaded_model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
+    return loaded_model
 
 
 def main():
-    so = pd.read_csv('data_so2n-1.csv', delimiter=';')
-    so['q_c'] = so.iloc[:, [0, 1, 2, 3, 4]].sum(axis=1)
-    so['label'] = so.apply(lambda x: classification(x.iloc[14]), axis=1)
-    so.drop(so.columns[[0, 1, 2, 3, 4, 8, 10, 11, 14]], inplace=True, axis=1)
+    so = pd.read_csv('data_so.csv', delimiter=';')
+    so['c8_q'] = so.iloc[:, [1, 2, 3, 4, 5]].sum(axis=1)
+    so['label_n'] = so.apply(lambda x: classification(x.iloc[15]), axis=1)
+    so['label_m'] = so.apply(lambda x: classification(x.iloc[16]), axis=1)
+    so['label_ug'] = so.apply(lambda x: classification(x.iloc[17]), axis=1)
+    so.drop(so.columns[[0, 1, 2, 3, 4, 9, 11, 12, 15, 16, 17]], inplace=True, axis=1)
     so.iloc[:, 0:7] = \
         StandardScaler().fit_transform(so.iloc[:, 0:7].as_matrix())
-    #so.to_csv('data_so_all.csv', sep=';')
+    so.to_csv('data_so_all-pr.csv', sep=';')
     data = np.random.permutation(so.values)
     X = data[:, 0:7].astype(float)
-    Y = data[:, 7]
+    Y_n = data[:, 7]
+    Y_m = data[:, 8]
+    Y_u = data[:, 9]
     enc = LabelEncoder()
-    enc_Y = enc.fit_transform(Y)
-    dumm_y = np_utils.to_categorical(enc_Y)
-    (X_train, X_test, Y_train, Y_test) = train_test_split(X, dumm_y, test_size=.25)
-
-    tensorboard = TensorBoard(log_dir="logs/{}".format(time()), write_graph=True, write_grads=True, write_images=True,
-                              histogram_freq=0)
-    # fit
-    model = nn_model()
-    history = model.fit(X_train, Y_train, batch_size=16, epochs=160, verbose=1, validation_data=(X_test, Y_test),
-                        shuffle=True, callbacks=[tensorboard])
-
-    # predict
-    predictions = model.predict_proba(X_test)
-    print('Accuracy: {}'.format(roc_auc_score(y_true=Y_test, y_score=predictions)))
-
-    #save model
-    model_json = model.to_json()
-    with open("model_n.json", "w") as json_file:
-        json_file.write(model_json)
-    # serialize weights to HDF5
-    model.save_weights("model_n.h5")
-
-
-    # # График точности модели
-    # plt.plot(history.history['acc'])
-    # plt.title('model accuracy')
-    # plt.ylabel('accuracy')
-    # plt.xlabel('epoch')
-    # plt.legend(['train', 'test'], loc='upper left')
-    # plt.show()
-    # # График оценки loss
-    # plt.plot(history.history['loss'])
-    # plt.title('model loss')
-    # plt.ylabel('loss')
-    # plt.xlabel('epoch')
-    # plt.legend(['train', 'test'], loc='upper left')
-    # plt.show()
+    enc_Y = enc.fit_transform(Y_n)
+    Y_n_f = np_utils.to_categorical(enc_Y)
+    enc_Y = enc.fit_transform(Y_m)
+    Y_m_f = np_utils.to_categorical(enc_Y)
+    enc_Y = enc.fit_transform(Y_u)
+    Y_u_f = np_utils.to_categorical(enc_Y)
+    model = model_nn('model_n')
+    score = model.evaluate(X, Y_n_f, verbose=1)
+    print("%s: %.2f%%" % (model.metrics_names[1], score[1] * 100))
+    model = model_nn('model_m')
+    score = model.evaluate(X, Y_m_f, verbose=1)
+    print("%s: %.2f%%" % (model.metrics_names[1], score[1] * 100))
+    model = model_nn('model_ug')
+    score = model.evaluate(X, Y_u_f, verbose=1)
+    print("%s: %.2f%%" % (model.metrics_names[1], score[1] * 100))
 
 
 if __name__ == "__main__":
