@@ -1,11 +1,12 @@
 from DATA import datasql
 from METHEO import htmltotable
 from CNTK import CNTKCassification
+from KTF import KTFClassificator
 import datetime
 import time
 import locale
 import re
-
+import numpy as np
 # test data format
 # k4, k5, k6, k7, k8, rtp, T, P, U, ff, ff10, Td, RRR, Wg
 #                      5   6  7  8   9  10    11   12  13
@@ -31,6 +32,7 @@ obj = htmltotable.HtmlTables('https://rp5.ru/%D0%90%D1%80%D1%85%D0%B8%D0%B2_%D0%
 # sql = datasql.SqlLiteBase('/home/eugen/PycharmProjects/WebSOVisu/db.sqlite3')
 sql = datasql.SqlLiteBase('/home/administrator/projects/websovisu/db.sqlite3')
 hour = -1
+ktf = KTFClassificator.KTFClassification('/home/administrator/projects/KTF')
 while True:
     dt = datetime.datetime.now()
     if dt.hour != hour:
@@ -90,10 +92,17 @@ while True:
                              (data_insql[0][11] > 0 if data_insql[0][11] else 0))
             sql.writeinsqldata(ind)
             data_full = sql.getwheterdata1()
-            cntk = CNTKCassification.CntkClassification('/home/administrator/projects/CNTK/model-som-1g.dnn')
-            gdata['so_m_nr'] = int(cntk.evaluate(data_full))
-            gdata['so_n_nr'] = int(cntk.reevaluate('/home/administrator/projects/CNTK/model-son-1g.dnn', data_full))
-            gdata['so_ug_nr'] = int(cntk.reevaluate('/home/administrator/projects/CNTK/model-soug-1g.dnn', data_full))
+            #cntk = CNTKCassification.CntkClassification('/home/administrator/projects/CNTK/model-som-1g.dnn')
+            ktf_n, ktf_m, ktf_ug = ktf.evaluate(data_full)
+            if ktf_n is not None and len(ktf_n) > 0:
+                gdata['so_n_nr'] = int(np.mean(ktf_n).round())
+            if ktf_m is not None and len(ktf_m) > 0:
+                gdata['so_m_nr'] = int(np.mean(ktf_m).round())
+            if ktf_ug is not None and len(ktf_ug) > 0:
+                gdata['so_ug_nr'] = int(np.mean(ktf_ug).round())
+            #gdata['so_m_nr'] = int(cntk.evaluate(data_full))
+            #gdata['so_n_nr'] = int(cntk.reevaluate('/home/administrator/projects/CNTK/model-son-1g.dnn', data_full))
+            #gdata['so_ug_nr'] = int(cntk.reevaluate('/home/administrator/projects/CNTK/model-soug-1g.dnn', data_full))
             print('{M} {N} {UG}', gdata['so_m_nr'], gdata['so_n_nr'], gdata['so_ug_nr'])
             gdata['an_date'] = ind['an_date']
             gdata['so_n_date'] = ind['an_date']
